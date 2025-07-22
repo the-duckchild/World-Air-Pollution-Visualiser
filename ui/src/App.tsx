@@ -1,12 +1,15 @@
 import { useState } from 'react'
 import { TickerTape } from './components/TickerTape';
+import './styles/globals.css'
+import './styles/app.css'
 
 function App() {
   // const [count, setCount] = useState(0)
 
   return (
-    <>
-      <div className="bg-background">
+    <> 
+      <div className="min-h-screen flex flex-col">
+        
         {/* <a href="https://vite.dev" target="_blank">
           <img src={viteLogo} className="logo" alt="Vite logo" />
         </a>
@@ -22,12 +25,14 @@ function App() {
         <p>
           Edit <code>src/App.tsx</code> and save to test HMR
         </p> */}
-      </div>
+      
 
               {/* Bottom Ticker Tape */}
-      <div className="mt-auto" >
+      <div className="mt auto">
         <TickerTape />
       </div>
+      </div>
+      
     </>
     
   )

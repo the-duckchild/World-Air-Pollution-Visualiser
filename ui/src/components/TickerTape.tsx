@@ -44,8 +44,7 @@ export function TickerTape() {
   const duplicatedData = [...mockCityData, ...mockCityData];
 
   return (
-    <div className="w-full bg-muted border-t overflow-hidden py-2">
-      <div className="absolute bottom-0 ">
+    <div className="w-full bg-muted border-t overflow-hidden py-2 absolute bottom-0">
         <motion.div
           className="flex gap-8 whitespace-nowrap"
           animate={{
@@ -76,6 +75,6 @@ export function TickerTape() {
           ))}
         </motion.div>
       </div>
-    </div>
+
   );
 }
