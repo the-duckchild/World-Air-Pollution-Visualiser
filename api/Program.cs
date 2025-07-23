@@ -2,8 +2,12 @@ using api.Database;
 using api.Helpers;
 using api.Models.Database;
 using api.Repositories;
+using dotenv.net;
+
 
 var builder = WebApplication.CreateBuilder(args);
+
+DotEnv.Load();
 
 // Add services to the container.
 
@@ -12,6 +16,12 @@ builder.Services.AddScoped<IStationLocationRepository, StationLocationRepository
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<AirPollutionDbContext>();
+builder.Services.AddSwaggerGen(options => {
+    options.ResolveConflictingActions(apiDescriptions => apiDescriptions.First());
+    options.IgnoreObsoleteActions();
+    options.IgnoreObsoleteProperties();
+    options.CustomSchemaIds(type => type.FullName);
+});
 
 var app = builder.Build();
 
