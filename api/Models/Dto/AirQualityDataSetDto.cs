@@ -50,40 +50,40 @@ public class Iaqi
 
 public class Time
 {
-    public string s { get; set; }
-    public string tz { get; set; }
-    public int v { get; set; }
-    public DateTime iso { get; set; }
+    public string? SaveChanges { get; set; }
+    public string? Tz { get; set; }
+    public int? V { get; set; }
+    public DateTime Iso { get; set; }
 }
 
 public class Co
 {
-    public int v { get; set; } = 0;
+    public int V { get; set; } = 0;
 }
 
 public class Co2
 {
-    public int v { get; set; } = 0;
+    public int V { get; set; } = 0;
 }
 
 public class No2
 {
-    public int v { get; set; } = 0;
+    public int V { get; set; } = 0;
 }
 
 public class Pm10
 {
-    public int v { get; set; }
+    public int V { get; set; }
 }
 
 public class Pm25
 {
-    public int v { get; set; }
+    public int V { get; set; }
 }
 
 public class So2
 {
-    public int v { get; set; }
+    public int V { get; set; }
 }
 
 

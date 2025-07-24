@@ -7,7 +7,6 @@ namespace api.Repositories;
 public interface IStationLocationRepository
 {
     Task<IEnumerable<StationLocation>> GetStationLocations();
-    
 }
 
 public class StationLocationRepository : IStationLocationRepository
@@ -23,6 +22,4 @@ public class StationLocationRepository : IStationLocationRepository
     {
         return await _context.StationLocation.ToListAsync();
     }
-
-
 }

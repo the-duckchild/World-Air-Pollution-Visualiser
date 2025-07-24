@@ -15,10 +15,19 @@ public class AirQualityDataController : ControllerBase
     }
 
     [HttpGet("air-quality-data-by-uid/{uid}")]
-    public async Task<ActionResult<string>> AirQualityByUID(int uid)
+    public async Task<ActionResult<AirQualityDataSetDto>> AirQualityByUID(int uid)
     {
         var result = await _airQualityDataRepository.GetDataByUID(uid);
 
         return Ok(result);
     }
+
+    [HttpGet("air-quality-data-by-latlon/{lat}/{lon}")]
+    public async Task<ActionResult<AirQualityDataSetDto>> AirQualityByLatLon(float lat, float lon)
+    {
+        var result = await _airQualityDataRepository.GetDataByLatLon(lat, lon);
+
+        return Ok(result);
+    }
+    
 };
