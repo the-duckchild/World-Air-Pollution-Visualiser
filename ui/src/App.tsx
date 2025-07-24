@@ -9,6 +9,7 @@ function App() {
 
   return (
     <>
+   
       <div className="min-h-screen flex flex-col">
         <div>
           <FindDataForNearestStationForm />
@@ -30,11 +31,13 @@ function App() {
         </p> */}
 
         {/* Bottom Ticker Tape */}
+
         <div className="mt auto">
           <TickerTape />
         </div>
       </div>
     </>
+
   );
 }
 

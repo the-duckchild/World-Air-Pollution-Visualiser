@@ -4,10 +4,7 @@ import "./FindDataForNearestStationForm.css";
   
 
 export function FindDataForNearestStationForm(): JSX.Element {
- const { register, handleSubmit, formState: { errors } } = useForm({defaultValues: {
-  Longitude: 0,
-  Latitude: 0,
- }});
+ const { register, handleSubmit, formState: { errors } } = useForm();
 
   interface FormData {
     Longitude: number;
