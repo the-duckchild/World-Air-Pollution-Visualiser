@@ -11,7 +11,7 @@ function App() {
   return (
     <>
    
-      <div className="min-h-95vh flex flex-col min-w-screen items-center mt-50">
+      <div className="min-h-95vh flex flex-col min-w-screen items-center mt-50 rounded-sm">
         <div className="flex"> 
           <AqiFiguresDisplay />
         </div>

@@ -1,0 +1,8 @@
+.aqi{
+    border-left: 1px solid var(--white);
+  border-top: 1px solid var(--white);
+  border-left: 1px solid (--white);
+  border-top: 1px solid (--white);
+  backdrop-filter: blur(10px);
+  box-shadow: 20px 20px 40px -6px rgba(0,0,0,0.2);
+}
