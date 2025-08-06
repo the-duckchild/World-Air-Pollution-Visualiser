@@ -119,3 +119,16 @@ form {
   text-shadow: 2px 2px 4px rgba(255,255,255,0.2);}
 
 
+.map-container .leaflet-container {
+  width: 60vw;
+  height: 60vh;
+  display: flex;
+  margin: 10px 1px;
+  border-radius: 25px;
+  border-color: #ffffff;
+  border-width: 10px;
+  position: absolute;
+  top:10%;
+  left:20vw;
+  z-index: 25;
+}
