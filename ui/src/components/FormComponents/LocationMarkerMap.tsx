@@ -1,4 +1,4 @@
-import { useMapEvents, Marker, Tooltip, MapContainer, TileLayer } from 'react-leaflet'
+import { useMapEvents, Marker, Tooltip } from 'react-leaflet'
 import { LatLng, type LeafletMouseEvent  } from 'leaflet'
 import { type UseFormSetValue } from "react-hook-form";
 import 'leaflet/dist/leaflet.css';
@@ -19,7 +19,6 @@ export function LocationMarkerMap( locationMarkerProps: LocationMarkerProps) {
     click(e: LeafletMouseEvent) {
         locationMarkerProps.setValue("Longitude", parseFloat(e.latlng.lng.toFixed(5)));
       locationMarkerProps.setValue("Latitude", parseFloat(e.latlng.lat.toFixed(5)));
-    
       locationMarkerProps.setPosition(e.latlng)
     }
   })
