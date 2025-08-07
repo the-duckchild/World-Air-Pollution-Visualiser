@@ -1,11 +1,11 @@
 import { type JSX, useState } from "react";
 import { useForm } from "react-hook-form";
-import "./FindDataForNearestStationForm.css";
+import { AnimatePresence , motion } from "motion/react"
 import { LocationMarkerMap } from "./LocationMarkerMap";
 import { MapContainer, TileLayer } from "react-leaflet";
 import { latLng, LatLng } from "leaflet";
 import "leaflet/dist/leaflet.css";
-
+import "./FindDataForNearestStationForm.css";
 
 
 export function FindDataForNearestStationForm(): JSX.Element {
@@ -31,8 +31,9 @@ const toggleMap = () => {
 
   return (
     <div>
+      <AnimatePresence>
       {mapVisible && (
-     <div className="map-container">
+     <motion.div key="map" initial={{opacity: 0}} animate={{opacity: 1,}} exit={{ opacity: 0 }} transition={{ ease: "easeInOut", duration: 0.5 }} className="map-container">
         <MapContainer
           center={{ lat: 16.7665887, lng: -3.0025615 }}
           maxBounds={[
@@ -59,7 +60,8 @@ const toggleMap = () => {
             setValue={setValue}
           />
         </MapContainer>
-      </div>)}
+      </motion.div>)}
+      </AnimatePresence>
     <div className="container">
       
       <form onSubmit={handleSubmit(onSubmit)}>
