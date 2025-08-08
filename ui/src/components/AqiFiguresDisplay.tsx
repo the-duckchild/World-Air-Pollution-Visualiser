@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 import { getAqiFiguresByLatLon } from "../Api/ApiClient";
 import type { AirQualityDataSetDto } from "../Api/ApiClient";
 import "./AqiFiguresDisplay.css";

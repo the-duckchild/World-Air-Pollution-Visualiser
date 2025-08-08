@@ -42,6 +42,8 @@ const toggleMap = () => {
     if (onCoordinatesChange) {
       onCoordinatesChange(data);
     }
+    toggleMap();
+
   }
 
   return (
