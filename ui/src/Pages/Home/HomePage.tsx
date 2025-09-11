@@ -18,7 +18,7 @@ const HomePage = () => {
              <>
                
       <div className="min-h-95vh flex flex-col min-w-screen items-center rounded-sm">
-        <div id="canvas-container" className="h-150 w-500 mt-20">
+        <div id="canvas-container" className="h-150 w-500 mt-50">
         <Canvas>
           <AqiVisualiser />
           </Canvas>

@@ -4,6 +4,7 @@
     "react-leaflet": "^5.0.0"
   },
   "devDependencies": {
-    "@types/leaflet": "^1.9.20"
+    "@types/leaflet": "^1.9.20",
+    "@types/react-router-dom": "^5.3.3"
   }
 }
