@@ -1,4 +1,4 @@
-import { PerspectiveCamera, OrbitControls, Edges, Clouds, Cloud } from "@react-three/drei";
+import { PerspectiveCamera, OrbitControls, Edges, Clouds, Cloud, Sky,} from "@react-three/drei";
 import type { Iaqi } from "../../Api/ApiClient";
 import { useEffect, useRef, useState } from "react";
 import { ParticleSystem } from "./ParticleSystems";
@@ -26,6 +26,8 @@ const PARTICLE_CONFIGS: ParticleSystemConfig[] = [
 ];
 
 const BOUNDS = { x: 65, y: 20, z: 25 };
+
+
 
 export function AqiVisualiser({
   data,
@@ -59,6 +61,17 @@ export function AqiVisualiser({
     };
   }, []);
 
+ function CloudPattern() {
+  const ref = useRef();
+  const cloud0 = useRef()
+    useFrame((state, delta) => {
+    ref.current.rotation.y = Math.cos(state.clock.elapsedTime / 2) / 2
+    ref.current.rotation.x = Math.sin(state.clock.elapsedTime / 2) / 2
+    cloud0.current.rotation.y -= delta
+  })
+
+  }
+
     const getParticleCount = (value: number) => {
     // Scale the particle count based on the value
     // Proportionally map AQI values from 0-500 to 0-250 particles
@@ -67,8 +80,10 @@ export function AqiVisualiser({
 
   return (
     <>
-    <div style={{ width:"75vw", height: "50vh", border: '1px solid #ffffff', borderRadius: '25px'}}>
+    <div style={{ width:"75vw", height: "50vh", border: '5px solid #ffffff', borderRadius: '25px'}}>
       <Canvas camera={{ position: cameraPosition, fov: 50 }}>
+        <fog attach="fog" args={[0xcccccc, 200, 500]} />
+        <Sky sunPosition={[100,15, 100]} azimuth={0.25}/>  
       <ambientLight color={0xffffff} intensity={1} />
       {/* <directionalLight color="white" intensity={0.7} position={[0, 3, 5]} /> */}
       <OrbitControls enableDamping dampingFactor={0.05} minDistance={0}/>
@@ -80,7 +95,12 @@ export function AqiVisualiser({
         far={1000}
         position={[0, 0, 100]}
       />
+      <mesh position={[0, -20, 0]} rotation={[-Math.PI/2, 0, 0]} scale={[1, 1, 1]}>
+    <planeGeometry args={[1000, 1000]}  />
+    <meshBasicMaterial color="green" />
+      </mesh>
       <mesh><Clouds material={THREE.MeshLambertMaterial}>
+        
   <Cloud segments={40} bounds={[10, 2, 2]} volume={10} color="white" position={[10,10,14]} />
   <Cloud seed={1} scale={2} volume={5} color="grey" fade={100} position={[10,10,14]} />
 </Clouds></mesh>
