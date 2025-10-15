@@ -1,5 +1,6 @@
 import type React from "react";
-import { useRef, useMemo, useFrame } from React;
+import { useRef, useMemo } from "react";
+import {useFrame} from '@react-three/fiber'
 import * as THREE from 'three';
 
 interface Particle {
@@ -24,14 +25,14 @@ export function ParticleSystem({ count, color, bounds, allParticles, systemId}: 
     for (let i = 0; i < count; i++) {
       particleArray.push({
         position: new THREE.Vector3(
-          (Math.random() - 0.5) * bounds.x * 0.8,
-          (Math.random() - 0.5) * bounds.y * 0.8,
-          (Math.random() - 0.5) * bounds.z * 0.8
+          (Math.random() - 0.5) * bounds.x * 0.99,
+          (Math.random() - 0.5) * bounds.y * 0.99,
+          (Math.random() - 0.5) * bounds.z * 0.99,
         ),
         velocity: new THREE.Vector3(
-          (Math.random() - 0.5) * 0.02,
-          (Math.random() - 0.5) * 0.02,
-          (Math.random() - 0.5) * 0.02
+          (Math.random() - 0.5) * 0.06,
+          (Math.random() - 0.5) * 0.06,
+          (Math.random() - 0.5) * 0.06
         ),
       });
     }
@@ -40,13 +41,13 @@ export function ParticleSystem({ count, color, bounds, allParticles, systemId}: 
   }, [count, bounds, systemId, allParticles]);
 
     const tempMatrix = useMemo(() => new THREE.Matrix4(), []);
-    const particleRadius = 0.04;
+    const particleRadius = 0.2;
 
       useFrame(() => {
     if (!meshRef.current) return;
 
     // Update particle positions and handle collisions
-    particles.forEach((particle, i) => {
+    particles.forEach((particle: Particle, i: number) => {
       // Update position
       particle.position.add(particle.velocity);
 
