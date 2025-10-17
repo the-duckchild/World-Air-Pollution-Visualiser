@@ -33,9 +33,9 @@ console.log(currentLongLat)
 
   return (
     <div className="aqi bg-white p-2 flex self-center w-100 rounded-md">
-      <p> PM25: {aqiForClosestStation?.data?.aqi}</p>
-      <p> PM10: {aqiForClosestStation?.data?.iaqi?.pm10?.v}</p>
-      <p> {aqiForClosestStation?.data?.city?.name}</p>
+      <p>PM25:{aqiForClosestStation?.data?.aqi}</p>
+      <p>PM10:{aqiForClosestStation?.data?.iaqi?.pm10?.v}</p>
+      <p>{aqiForClosestStation?.data?.city?.name}</p>
     </div>
   );
 };
