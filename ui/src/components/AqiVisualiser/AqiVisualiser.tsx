@@ -31,22 +31,3 @@ export const AqiVisualiser = () => {
   );
 };
 
-# Air Pollution Visualiser
-
-## Description
-Air Pollution Visualiser is a JavaScript-based web application that allows users to explore air quality data interactively. It features a 3D visualisation of AQI figures, map-based station selection, and real-time data updates using modern React and Three.js libraries.
-
-## Table of Contents
-- [Description](#description)
-- [Installation](#installation)
-- [Usage](#usage)
-- [Features](#features)
-- [Configuration](#configuration)
-- [License](#license)
-
-## Installation
-
-1. **Clone the repository:**
-   ```bash
-   git clone https://github.com/your-username/air-pollution-visualiser.git
-   cd air-pollution-visualiser
