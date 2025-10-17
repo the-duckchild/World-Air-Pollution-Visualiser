@@ -4,7 +4,7 @@ using api.Models.Database;
 using api.Repositories;
 using dotenv.net;
 
-var  AllowSpecificOrigins = "_AllowSpecificOrigins";
+var AllowSpecificOrigins = "_AllowSpecificOrigins";
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,14 +12,17 @@ builder.Services.AddCors(options =>
 {
     if (builder.Environment.IsDevelopment())
     {
-        options.AddPolicy(name: AllowSpecificOrigins, policy =>
-        {
-            policy
-                .WithOrigins("http://localhost:5173")
-                .AllowAnyMethod()
-                .AllowCredentials()
-                .AllowAnyHeader();
-        });
+        options.AddPolicy(
+            name: AllowSpecificOrigins,
+            policy =>
+            {
+                policy
+                    .WithOrigins("http://localhost:5173")
+                    .AllowAnyMethod()
+                    .AllowCredentials()
+                    .AllowAnyHeader();
+            }
+        );
     }
 });
 
@@ -33,7 +36,8 @@ builder.Services.AddScoped<IAirQualityDataRepository, AirQualityDataRepository>(
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<AirPollutionDbContext>();
-builder.Services.AddSwaggerGen(options => {
+builder.Services.AddSwaggerGen(options =>
+{
     options.ResolveConflictingActions(apiDescriptions => apiDescriptions.First());
     options.IgnoreObsoleteActions();
     options.IgnoreObsoleteProperties();
