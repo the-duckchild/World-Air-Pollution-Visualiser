@@ -2,8 +2,9 @@ import { PerspectiveCamera, OrbitControls, Edges, Clouds, Cloud, Sky,} from "@re
 import type { Iaqi } from "../../Api/ApiClient";
 import { useEffect, useRef, useState } from "react";
 import { ParticleSystem } from "./ParticleSystems";
-import { Canvas } from '@react-three/fiber'
+import { Canvas, useFrame } from '@react-three/fiber'
 import * as THREE from 'three';
+
 
 interface AirQualityVisualizationProps {
   data: Iaqi;
@@ -61,18 +62,152 @@ export function AqiVisualiser({
     };
   }, []);
 
- function CloudPattern() {
-  const ref = useRef();
-  const cloud0 = useRef()
-    useFrame((state, delta) => {
-    ref.current.rotation.y = Math.cos(state.clock.elapsedTime / 2) / 2
-    ref.current.rotation.x = Math.sin(state.clock.elapsedTime / 2) / 2
-    cloud0.current.rotation.y -= delta
-  })
+  // Calculate sun position based on current time
+  const getSunPosition = () => {
+    const now = new Date();
+    const hours = now.getHours();
+    const minutes = now.getMinutes();
+    const timeDecimal = hours + minutes / 60; // Convert to decimal hours (0-24)
+    
+    // Calculate sun angle based on time (sunrise ~6am, sunset ~18pm)
+    // Map 6-18 hours to 0-180 degrees (sunrise to sunset)
+    const sunAngle = ((timeDecimal - 6) / 12) * Math.PI; // 0 to π radians
+    
+    // Calculate sun position
+    const sunHeight = Math.sin(sunAngle) * 100; // Height varies with sun angle
+    const sunDistance = 150; // Distance from origin
+    
+    // Clamp sun height to reasonable bounds
+    const clampedHeight = Math.max(5, Math.min(100, sunHeight));
+    
+    // Position: x, y, z
+    const sunX = Math.cos(sunAngle) * sunDistance;
+    const sunY = clampedHeight;
+    const sunZ = Math.sin(sunAngle) * sunDistance * 0.3; // Slight Z variation
+    
+    return [sunX, sunY, sunZ] as [number, number, number];
+  };
 
+  const [sunPosition, setSunPosition] = useState<[number, number, number]>(getSunPosition());
+
+  // Update sun position every ten minutes
+  useEffect(() => {
+    const updateSunPosition = () => {
+      setSunPosition(getSunPosition());
+    };
+
+    // Update immediately and then every 10 minutes
+    updateSunPosition();
+    const interval = setInterval(updateSunPosition, 600000); 
+
+    return () => clearInterval(interval);
+  }, []);
+
+  function CloudPattern() {
+    // Create individual refs for each cloud group
+    const cloudGroup1 = useRef<THREE.Group>(null);
+    const cloudGroup2 = useRef<THREE.Group>(null);
+    const cloudGroup3 = useRef<THREE.Group>(null);
+    const cloudGroup4 = useRef<THREE.Group>(null);
+    const cloudGroup5 = useRef<THREE.Group>(null);
+    const cloudGroup6 = useRef<THREE.Group>(null);
+    const cloudGroup7 = useRef<THREE.Group>(null);
+    const cloudGroup8 = useRef<THREE.Group>(null);
+    const cloudGroup9 = useRef<THREE.Group>(null);
+    const cloudGroup10 = useRef<THREE.Group>(null);
+    
+    // Array of refs for easier iteration
+    const cloudGroupRefs = [
+      cloudGroup1, cloudGroup2, cloudGroup3, cloudGroup4, cloudGroup5,
+      cloudGroup6, cloudGroup7, cloudGroup8, cloudGroup9, cloudGroup10
+    ];
+    
+    // Generate random initial positions and properties for each cloud group
+    const [cloudConfigs] = useState(() => {
+      // Get initial canvas width for cloud positioning
+      const initialCanvasWidth = window.innerWidth * 0.75; // 75vw
+      // Calculate safe Z range: not behind camera (65) and not in fog (starts at 200)
+      const maxSafeZ = Math.min(150, initialCanvasWidth * 0.3); // Scale with canvas width, max 150
+      const minSafeZ = -maxSafeZ; // Symmetric range in front of camera
+      
+      return Array.from({ length: 10 }, (_, index) => ({
+        id: index,
+        initialX: Math.random() * initialCanvasWidth - (initialCanvasWidth / 2), // Random X across canvas width
+        initialY: Math.random() * 60 + 10,  // Random Y between 10 and 70
+        initialZ: Math.random() * (maxSafeZ - minSafeZ) + minSafeZ, // Random Z based on canvas width, safe from camera/fog
+        speed: Math.random() * 9 + 1,     // Random speed between 1 and 10
+        seed: index + 1,
+        scale: (Math.random() * 1.5 + 0.8) * 2, 
+        volume: Math.random() * 8 + 5,      // Random volume between 5 and 13
+        color: (() => {
+          const rand = Math.random();
+          if (rand > 0.6) return "white";
+          if (rand > 0.3) return "lightgrey"; 
+          return "#E0E0E0"; // Light gray instead of dark grey
+        })(),
+        fade: Math.random() * 30 + 70       // Random fade between 70 and 100 (lighter overall)
+      }));
+    });
+    
+    const driftSpeed = 6; // Base drift speed
+    
+    useFrame((state, delta) => {
+      const canvasWidth = state.size.width;
+      const leftEdge = -(canvasWidth/2) - 50; // Extra padding for smooth reset
+      const rightEdge = (canvasWidth/2) + 50;
+      
+      // Move each cloud group
+      cloudGroupRefs.forEach((ref, index) => {
+        if (ref.current) {
+          const config = cloudConfigs[index];
+          ref.current.position.x += (driftSpeed + config.speed * 0.1) * delta;
+          
+          // Reset to left edge when reaching right edge
+          if (ref.current.position.x > rightEdge) {
+            ref.current.position.x = leftEdge;
+          }
+        }
+      });
+    });
+
+    return (
+      <>
+        {cloudConfigs.map((config, index) => (
+          <group 
+            key={config.id}
+            ref={cloudGroupRefs[index]} 
+            position={[config.initialX, config.initialY, config.initialZ]}
+          >
+            <Clouds material={THREE.MeshLambertMaterial}>
+              <Cloud 
+                segments={40} 
+                bounds={[8, 3, 3]} 
+                volume={config.volume} 
+                color={config.color}
+                seed={config.seed}
+                scale={config.scale}
+                fade={config.fade}
+                position={[0, 0, 0]} 
+              />
+              {/* Add a second cloud for more density */}
+              <Cloud 
+                segments={30} 
+                bounds={[6, 2, 2]} 
+                volume={config.volume * 0.6} 
+                color={config.color === "white" ? "lightgrey" : "white"}
+                seed={config.seed + 10}
+                scale={config.scale * 0.7}
+                fade={config.fade * 0.8}
+                position={[Math.random() * 10 - 5, Math.random() * 5 - 2.5, Math.random() * 10 - 5]} 
+              />
+            </Clouds>
+          </group>
+        ))}
+      </>
+    );
   }
 
-    const getParticleCount = (value: number) => {
+  const getParticleCount = (value: number) => {
     // Scale the particle count based on the value
     // Proportionally map AQI values from 0-500 to 0-250 particles
     return Math.max(0, Math.min(250, Math.round(value * 100)));
@@ -83,7 +218,7 @@ export function AqiVisualiser({
     <div style={{ width:"75vw", height: "50vh", border: '5px solid #ffffff', borderRadius: '25px'}}>
       <Canvas>
         <fog attach="fog" args={[0xcccccc, 200, 500]} />
-        <Sky sunPosition={[100,15, 100]} azimuth={0.25}/>  
+        <Sky sunPosition={sunPosition} azimuth={0.25}/>  
       <ambientLight color={0xffffff} intensity={1} />
       {/* <directionalLight color="white" intensity={0.7} position={[0, 3, 5]} /> */}
       <OrbitControls enableDamping dampingFactor={0.05}/>
@@ -95,17 +230,16 @@ export function AqiVisualiser({
         far={1000}
         position={[0, 0, 65]}
       />
-      <mesh position={[0, -20, 0]} rotation={[-Math.PI/2, 0, 0]} scale={[1, 1, 1]}>
-    <planeGeometry args={[1000, 1000]}  />
-    <meshBasicMaterial color="green" />
+      
+
+      <mesh position={[0, -25, 0]} rotation={[-Math.PI/2, 0, 0]} scale={[1, 1, 1]}>
+        <planeGeometry args={[1000, 1000]}  />
+        <meshBasicMaterial color="green" />
       </mesh>
-      <mesh><Clouds material={THREE.MeshLambertMaterial}>
-        
-  <Cloud segments={40} bounds={[10, 2, 2]} volume={10} color="white" position={[10,20,14]} />
-  <Cloud seed={1} scale={2} volume={5} color="grey" fade={100} position={[10,20,14]} />
-  <Cloud segments={40} bounds={[10, 2, 2]} volume={10} color="white" position={[-60,-5,-10]} />
-  <Cloud seed={1} scale={2} volume={5} color="grey" fade={100} position={[-60,-5,-10]} />
-</Clouds></mesh>
+      
+
+       
+      <CloudPattern />
       <mesh rotation={[0.3, 0, 0]}>
         <boxGeometry args={[100, 20, 25]} />
 
