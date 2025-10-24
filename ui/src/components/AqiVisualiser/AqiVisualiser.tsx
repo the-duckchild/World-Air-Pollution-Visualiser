@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { ParticleSystem } from "./ParticleSystems";
 import { Canvas, useFrame } from '@react-three/fiber'
 import * as THREE from 'three';
+import Grass from "./Grass";
 
 
 interface AirQualityVisualizationProps {
@@ -90,15 +91,15 @@ export function AqiVisualiser({
 
   const [sunPosition, setSunPosition] = useState<[number, number, number]>(getSunPosition());
 
-  // Update sun position every ten minutes
+  // Update sun position every minute
   useEffect(() => {
     const updateSunPosition = () => {
       setSunPosition(getSunPosition());
     };
 
-    // Update immediately and then every 10 minutes
+    // Update immediately and then every minute
     updateSunPosition();
-    const interval = setInterval(updateSunPosition, 600000); 
+    const interval = setInterval(updateSunPosition, 60000); 
 
     return () => clearInterval(interval);
   }, []);
@@ -221,7 +222,14 @@ export function AqiVisualiser({
         <Sky sunPosition={sunPosition} azimuth={0.25}/>  
       <ambientLight color={0xffffff} intensity={1} />
       {/* <directionalLight color="white" intensity={0.7} position={[0, 3, 5]} /> */}
-      <OrbitControls enableDamping dampingFactor={0.05}/>
+      <OrbitControls 
+        enableDamping 
+        dampingFactor={0.05}
+        minPolarAngle={0}
+        maxPolarAngle={Math.PI * 0.599}
+        minDistance={10}
+        maxDistance={200}
+      />
       <PerspectiveCamera
         makeDefault
         fov={45}
@@ -231,22 +239,48 @@ export function AqiVisualiser({
         position={[0, 0, 65]}
       />
       
+      <group position={[0, -25.1, 0]}>
+        <Grass instances={2500000} width={1000} depth={1000} windStrength={0.8} />
+      </group>
 
-      <mesh position={[0, -25, 0]} rotation={[-Math.PI/2, 0, 0]} scale={[1, 1, 1]}>
-        <planeGeometry args={[1000, 1000]}  />
-        <meshBasicMaterial color="green" />
+      {/* Rolling hills terrain - fallback plane */}
+      <mesh position={[0, -25.2, 0]} rotation={[-Math.PI/2, 0, 0]} scale={[1, 1, 1]}>
+        <planeGeometry args={[1000, 1000, 64, 64]} />
+        <meshLambertMaterial 
+          color="#2E6F40" 
+          onBeforeCompile={(shader) => {
+            shader.vertexShader = shader.vertexShader.replace(
+              '#include <begin_vertex>',
+              `
+              #include <begin_vertex>
+              float hillHeight = 8.0;
+              float freq1 = 0.01;
+              float freq2 = 0.005;
+              float freq3 = 0.003;
+              
+              float hill1 = sin(position.x * freq1) * cos(position.y * freq1) * hillHeight * 0.8;
+              float hill2 = sin(position.x * freq2 + 1.5) * cos(position.y * freq2 + 2.0) * hillHeight * 0.6;
+              float hill3 = sin(position.x * freq3 + 3.0) * cos(position.y * freq3 + 1.0) * hillHeight * 0.4;
+              
+              transformed.z += hill1 + hill2 + hill3;
+              `
+            );
+          }}
+        />
       </mesh>
       
 
        
       <CloudPattern />
-      <mesh rotation={[0.3, 0, 0]}>
+      <mesh rotation={[0.3, 0, 0]} renderOrder={2}>
         <boxGeometry args={[100, 20, 25]} />
 
         <meshStandardMaterial
           color={0xffffff}
           opacity={0.08}
           transparent={true}
+          depthWrite={false}
+          blending={THREE.AdditiveBlending}
         />
         <Edges
           linewidth={2}
