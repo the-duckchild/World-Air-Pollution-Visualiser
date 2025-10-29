@@ -1,6 +1,6 @@
-import { type JSX, useState, useEffect } from "react";
+import { type JSX, useState } from "react";
 import { useForm } from "react-hook-form";
-import { AnimatePresence , motion } from "motion/react"
+import { AnimatePresence, motion } from "framer-motion"
 import { LocationMarkerMap } from "./LocationMarkerMap";
 import { MapContainer, TileLayer } from "react-leaflet";
 import { latLng, LatLng } from "leaflet";
@@ -28,39 +28,12 @@ export function FindDataForNearestStationForm({
     register,
     handleSubmit,
     setValue,
-    watch,
   } = useForm<LongLat>({ defaultValues: { Longitude: 0, Latitude: 0 } });
 
   const [position, setPosition] = useState<[number, number]>([16.766587, -3.0025615]);
   const [mapVisible, setMapVisible] = useState(false);
 
-  // Watch form values for changes
-  const watchedLongitude = watch("Longitude");
-  const watchedLatitude = watch("Latitude");
-
-  // Trigger coordinate change when form values change (for manual input with debouncing)
-  useEffect(() => {
-    // Debounce the coordinate updates to avoid excessive API calls
-    const timeoutId = setTimeout(() => {
-      // Only trigger if both longitude and latitude are valid numbers
-      if (watchedLongitude !== undefined && watchedLatitude !== undefined && 
-          !isNaN(Number(watchedLongitude)) && !isNaN(Number(watchedLatitude)) &&
-          watchedLongitude !== 0 && watchedLatitude !== 0) {
-        
-        const longitude = Number(watchedLongitude);
-        const latitude = Number(watchedLatitude);
-        
-        // Validate longitude range (-180 to 180) and latitude range (-90 to 90)
-        if (longitude >= -180 && longitude <= 180 && latitude >= -90 && latitude <= 90) {
-          if (onCoordinatesChange) {
-            onCoordinatesChange({ Longitude: longitude, Latitude: latitude });
-          }
-        }
-      }
-    }, 1000); // Wait 1 second after user stops typing
-
-    return () => clearTimeout(timeoutId);
-  }, [watchedLongitude, watchedLatitude, onCoordinatesChange]);
+  // Coordinates only change when "Show Data" button is clicked
 
 const toggleMap = () => {
     setMapVisible(!mapVisible);

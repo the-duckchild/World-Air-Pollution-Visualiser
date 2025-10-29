@@ -1,9 +1,5 @@
-import {
-  PerspectiveCamera,
-  OrbitControls,
-  Edges,
-} from "@react-three/drei";
-import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib';
+import { PerspectiveCamera, OrbitControls, Edges } from "@react-three/drei";
+import type { OrbitControls as OrbitControlsImpl } from "three-stdlib";
 import type { Iaqi } from "../../Api/ApiClient";
 import { useEffect, useRef, useState } from "react";
 import { ParticleSystem } from "./ParticleSystems";
@@ -15,6 +11,7 @@ import { CloudPattern } from "./Clouds";
 
 interface AirQualityVisualizationProps {
   data: Iaqi;
+  overallAqi?: number; // Overall AQI value
   enabledSystems: Record<string, boolean>;
   longitude?: number; // Optional longitude for location-based time calculation
   latitude?: number; // Optional latitude for location-based time calculation
@@ -26,7 +23,8 @@ interface ParticleSystemConfig {
   color: string;
 }
 
-const PARTICLE_CONFIGS: ParticleSystemConfig[] = [
+export const PARTICLE_CONFIGS: ParticleSystemConfig[] = [
+  { key: "aqi", label: "AQI", color: "#FFD700" },
   { key: "co", label: "CO", color: "#12436D" },
   { key: "co2", label: "CO₂", color: "#28A197" },
   { key: "no2", label: "NO₂", color: "#801650" },
@@ -39,13 +37,14 @@ const BOUNDS = { x: 100, y: 20, z: 25 };
 
 export function AqiVisualiser({
   data,
+  overallAqi,
   enabledSystems,
   longitude,
   latitude,
 }: AirQualityVisualizationProps) {
   const allParticles = useRef(new Map());
   const orbitControlsRef = useRef<OrbitControlsImpl>(null);
-  
+
   const [cameraPosition, setCameraPosition] = useState<
     [number, number, number]
   >([0, 0, 65]);
@@ -56,11 +55,11 @@ export function AqiVisualiser({
       const windowHeight = window.innerHeight;
       const isPortrait = windowHeight > windowWidth;
       const isMobile = windowWidth < 768;
-      
+
       // Calculate zoom based on window size
       // Smaller windows need more zoom out to fit content
       let zoomDistance = 65; // Default for large desktop
-      
+
       if (isMobile || isPortrait) {
         // For mobile/portrait, zoom out more based on how small the window is
         const minDimension = Math.min(windowWidth, windowHeight);
@@ -81,7 +80,7 @@ export function AqiVisualiser({
           zoomDistance = 55; // Large desktop screens can zoom in more
         }
       }
-      
+
       setCameraPosition([0, 0, zoomDistance]);
     };
 
@@ -100,13 +99,9 @@ export function AqiVisualiser({
     }
   }, [cameraPosition]);
 
-
-
-
-
   const getParticleCount = (value: number) => {
     // Scale the particle count based on the value
-    // Proportionally map AQI values from 0-500 to 0-250 particles
+    // Proportionally map AQI values from 0-500 to 0-800 particles
     return Math.max(0, Math.min(800, Math.round(value * 10)));
   };
 
@@ -197,10 +192,19 @@ export function AqiVisualiser({
             />
 
             {PARTICLE_CONFIGS.map((config) => {
-              const pollutantData = data[config.key as keyof Iaqi];
-              if (!pollutantData || !enabledSystems[config.key]) return null;
+              // Handle AQI differently since it's not in the iaqi object
+              let pollutantValue: number | undefined;
+              
+              if (config.key === 'aqi') {
+                pollutantValue = overallAqi;
+              } else {
+                const pollutantData = data[config.key as keyof Iaqi];
+                pollutantValue = pollutantData?.v;
+              }
+              
+              if (pollutantValue === undefined || !enabledSystems[config.key]) return null;
 
-              const particleCount = getParticleCount(pollutantData.v);
+              const particleCount = getParticleCount(pollutantValue);
 
               return (
                 <ParticleSystem

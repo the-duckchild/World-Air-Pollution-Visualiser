@@ -68,7 +68,11 @@ export interface So2 {
 
 
 export async function getAqiFiguresByLatLon(lat: number, lon: number){
-
     const response = await fetch(`http://localhost:5090/air-quality-data-by-latlon/${lat}/${lon}`);
+    
+    if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
     return response.json();
 }

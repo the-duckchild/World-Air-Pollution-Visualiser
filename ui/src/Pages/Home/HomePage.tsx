@@ -11,20 +11,14 @@ import "../.././styles/app.css";
 
 const HomePage = () => {
   const [enabledSystems, setEnabledSystems] = useState<Record<string, boolean>>({
-    co: true,
-    co2: true,
-    no2: true,
-    pm10: true,
-    pm25: true,
-    so2: true,
+    aqi: true,
+    co: false,
+    co2: false,
+    no2: false,
+    pm10: false,
+    pm25: false,
+    so2: false,
   });
-
-  // const handleToggleSystem = (key: string) => {
-  //   setEnabledSystems((prev) => ({
-  //     ...prev,
-  //     [key]: !prev[key],
-  //   }));
-  // };
 
   // Fallback iaqi data with zero values
   const fallbackIaqi: Iaqi = {
@@ -36,8 +30,9 @@ const HomePage = () => {
     so2: { v: 0 },
   };
 
-  const [currentLongLat, setCurrentLongLat] = useState<LongLat>({Longitude: -0.1276, Latitude: 51.5072});    
+  const [currentLongLat, setCurrentLongLat] = useState<LongLat>({Longitude: 0, Latitude: 0});    
     const [aqiForClosestStation, setAqiForClosestStation] = useState<AirQualityDataSetDto | null>(null);
+    
     return (
         
              <>
@@ -45,7 +40,18 @@ const HomePage = () => {
              <div className = "flex justify-between w-screen">
                <img src="High-Resolution-Color-Logo-on-Transparent-Background_edited.png" className="object-scale-down h-30"></img>
 
-          <AqiFiguresDisplay currentLongLat={currentLongLat} aqiForClosestStation={aqiForClosestStation} onAqiChange={setAqiForClosestStation}/>
+          <AqiFiguresDisplay 
+            currentLongLat={currentLongLat} 
+            aqiForClosestStation={aqiForClosestStation} 
+            enabledSystems={enabledSystems}
+            onAqiChange={setAqiForClosestStation}
+            onToggleSystem={(key: string) => {
+              setEnabledSystems(prev => ({
+                ...prev,
+                [key]: !prev[key]
+              }));
+            }}
+          />
           
         </div>
       <div className="min-h-95vh flex flex-col min-w-screen items-center">
@@ -53,6 +59,7 @@ const HomePage = () => {
         
           <AqiVisualiser 
             data={aqiForClosestStation?.data?.iaqi || fallbackIaqi} 
+            overallAqi={aqiForClosestStation?.data?.aqi}
             enabledSystems={enabledSystems}
             longitude={currentLongLat.Longitude}
             latitude={currentLongLat.Latitude}
