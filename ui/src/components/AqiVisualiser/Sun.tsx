@@ -1,5 +1,5 @@
 import { Sky } from "@react-three/drei";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, memo } from "react";
 import { getTimezoneForLocation } from "../../utils/timeUtils";
 import { toZonedTime } from "date-fns-tz";
 
@@ -8,7 +8,7 @@ interface SunProps {
   latitude?: number;
 }
 
-export function Sun({ longitude, latitude }: SunProps) {
+export const Sun = memo(function Sun({ longitude, latitude }: SunProps) {
   // Calculate sun position based on time (local or location-based)
   const getSunPosition = useCallback(async () => {
     let timeDecimal: number;
@@ -95,4 +95,4 @@ export function Sun({ longitude, latitude }: SunProps) {
   }, [longitude, latitude, getSunPosition]);
 
   return <Sky sunPosition={sunPosition} azimuth={0.25} />;
-}
+});

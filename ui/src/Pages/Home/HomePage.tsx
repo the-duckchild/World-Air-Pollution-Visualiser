@@ -66,8 +66,8 @@ const HomePage = () => {
           />
 
         
-      
-        <FindDataForNearestStationForm currentLongLat={currentLongLat} onCoordinatesChange={setCurrentLongLat} />
+      <FindDataForNearestStationForm currentLongLat={currentLongLat} onCoordinatesChange={setCurrentLongLat} />
+        
       </div>
       <TickerTape />
     </>

@@ -4,7 +4,7 @@ import type { AirQualityDataSetDto } from "../Api/ApiClient";
 import "./AqiFiguresDisplay.css";
 import { type LongLat } from "../components/FormComponents/FindDataForNearestStationForm";
 import { getCurrentTimeForLocation } from "../utils/timeUtils";
-import { PARTICLE_CONFIGS } from './AqiVisualiser/AqiVisualiser';
+import { PARTICLE_CONFIGS } from './AqiVisualiser/ParticleConfigs';
 import { Card } from './ui components/card';
 import { Switch } from './ui components/switch';
 import { Label } from './ui components/label';
@@ -127,11 +127,13 @@ const AqiFigures: React.FC<AqiFiguresDisplayProps> = ({
           <div>
              <p><strong>Location:</strong> {aqiForClosestStation?.data?.city?.name || 'Loading...'}</p>
           </div>
+          
            {currentTime && (
              <div className="text-right">
                <p className="text-sm text-gray-600">Local Time</p>
                <p className="font-mono text-lg">{currentTime}</p>
              </div>
+             
            )}
         </>
       )}
@@ -139,7 +141,7 @@ const AqiFigures: React.FC<AqiFiguresDisplayProps> = ({
        {/* Only show particle controls when location is selected */}
        {currentLongLat.Latitude !== 0 || currentLongLat.Longitude !== 0 ? (
          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3 md:gap-4">
-            {PARTICLE_CONFIGS.map((config) => {
+             {PARTICLE_CONFIGS.map((config: typeof PARTICLE_CONFIGS[0]) => {
               // Handle AQI differently since it's not in iaqi
               let pollutantData;
               let isAvailable;

@@ -1,13 +1,14 @@
 import { PerspectiveCamera, OrbitControls, Edges } from "@react-three/drei";
 import type { OrbitControls as OrbitControlsImpl } from "three-stdlib";
 import type { Iaqi } from "../../Api/ApiClient";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useMemo } from "react";
 import { ParticleSystem } from "./ParticleSystems";
 import { Canvas } from "@react-three/fiber";
 import * as THREE from "three";
 import Grass from "./Grass";
 import { Sun } from "./Sun";
 import { CloudPattern } from "./Clouds";
+import {PARTICLE_CONFIGS} from "./ParticleConfigs"
 
 interface AirQualityVisualizationProps {
   data: Iaqi;
@@ -17,21 +18,7 @@ interface AirQualityVisualizationProps {
   latitude?: number; // Optional latitude for location-based time calculation
 }
 
-interface ParticleSystemConfig {
-  key: string;
-  label: string;
-  color: string;
-}
 
-export const PARTICLE_CONFIGS: ParticleSystemConfig[] = [
-  { key: "aqi", label: "AQI", color: "#FFD700" },
-  { key: "co", label: "CO", color: "#12436D" },
-  { key: "co2", label: "CO₂", color: "#28A197" },
-  { key: "no2", label: "NO₂", color: "#801650" },
-  { key: "pm10", label: "PM10", color: "#F46A25" },
-  { key: "pm25", label: "PM2.5", color: "#4D1A3E" },
-  { key: "so2", label: "SO₂", color: "#F9A70F" },
-];
 
 const BOUNDS = { x: 100, y: 20, z: 25 };
 
@@ -105,6 +92,31 @@ export function AqiVisualiser({
     return Math.max(0, Math.min(800, Math.round(value * 10)));
   };
 
+  // Memoize particle counts to avoid recalculation on every render
+  const particleCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
+    
+    PARTICLE_CONFIGS.forEach(config => {
+      if (!enabledSystems[config.key]) {
+        counts[config.key] = 0;
+        return;
+      }
+      
+      let pollutantValue: number | undefined;
+      
+      if (config.key === 'aqi') {
+        pollutantValue = overallAqi;
+      } else {
+        const pollutantData = data[config.key as keyof Iaqi];
+        pollutantValue = pollutantData?.v;
+      }
+      
+      counts[config.key] = pollutantValue ? getParticleCount(pollutantValue) : 0;
+    });
+    
+    return counts;
+  }, [data, overallAqi, enabledSystems]);
+
   return (
     <>
       <div
@@ -114,7 +126,15 @@ export function AqiVisualiser({
           border: "5px solid #ffffff",
           borderRadius: "25px",
         }}>
-        <Canvas>
+        <Canvas
+          gl={{ 
+            antialias: false,
+            alpha: false,
+            powerPreference: "high-performance"
+          }}
+          dpr={[1, 1.5]}
+          performance={{ min: 0.8 }}
+        >
           <fog attach="fog" args={[0xcccccc, 200, 500]} />
           <Sun longitude={longitude} latitude={latitude} />
           <ambientLight color={0xffffff} intensity={0.3} />
@@ -192,19 +212,9 @@ export function AqiVisualiser({
             />
 
             {PARTICLE_CONFIGS.map((config) => {
-              // Handle AQI differently since it's not in the iaqi object
-              let pollutantValue: number | undefined;
+              const particleCount = particleCounts[config.key];
               
-              if (config.key === 'aqi') {
-                pollutantValue = overallAqi;
-              } else {
-                const pollutantData = data[config.key as keyof Iaqi];
-                pollutantValue = pollutantData?.v;
-              }
-              
-              if (pollutantValue === undefined || !enabledSystems[config.key]) return null;
-
-              const particleCount = getParticleCount(pollutantValue);
+              if (!particleCount || !enabledSystems[config.key]) return null;
 
               return (
                 <ParticleSystem

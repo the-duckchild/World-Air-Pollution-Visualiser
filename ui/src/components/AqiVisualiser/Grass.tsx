@@ -1,4 +1,4 @@
-import { useRef, useMemo, useEffect } from 'react';
+import { useRef, useMemo, useEffect, memo } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 
@@ -22,7 +22,7 @@ interface GrassProps {
  * Grass component that renders thousands of animated grass blades using instancedMesh
  * Uses custom shaders for realistic wind animation
  */
-export default function Grass({
+const Grass = memo(function Grass({
   instances = 5000,
   width = 100,
   depth = 100,
@@ -206,4 +206,6 @@ export default function Grass({
       }}
     />
   );
-}
+});
+
+export default Grass;

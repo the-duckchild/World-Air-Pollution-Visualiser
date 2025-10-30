@@ -1,9 +1,9 @@
 import { Clouds, Cloud } from "@react-three/drei";
-import { useRef, useState } from "react";
+import { useRef, useState, memo } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 
-export function CloudPattern() {
+export const CloudPattern = memo(function CloudPattern() {
   // Create individual refs for each cloud group
   const cloudGroup1 = useRef<THREE.Group>(null);
   const cloudGroup2 = useRef<THREE.Group>(null);
@@ -116,4 +116,4 @@ export function CloudPattern() {
       ))}
     </>
   );
-}
+});
