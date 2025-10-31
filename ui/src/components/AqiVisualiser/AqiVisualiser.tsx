@@ -168,7 +168,7 @@ export function AqiVisualiser({
               fontWeight: "600",
               margin: "0 0 8px 0"
             }}>
-              Loading 3D Visualization
+              Loading Air Quality Visualisation
             </h3>
             <p style={{
               color: "#6c757d",
@@ -202,7 +202,7 @@ export function AqiVisualiser({
             dpr={[1, 1.5]}
             performance={{ min: 0.8 }}
           >
-          <fog attach="fog" args={[0xcccccc, 200, 500]} />
+          <fog attach="fog" args={[0xcccccc, 200, 600]} />
           <Sun longitude={longitude} latitude={latitude} />
           <ambientLight color={0xffffff} intensity={0.3} />
           <OrbitControls
@@ -218,15 +218,15 @@ export function AqiVisualiser({
             makeDefault
             fov={45}
             near={1}
-            far={1000}
+            far={400}
             position={cameraPosition}
           />
 
           <group position={[0, -25.1, 0]}>
             <Grass
-              instances={2500000}
-              width={1000}
-              depth={1000}
+              instances={750000}
+              width={800}
+              depth={800}
               windStrength={0.8}
             />
           </group>
@@ -236,7 +236,7 @@ export function AqiVisualiser({
             position={[0, -25.2, 0]}
             rotation={[-Math.PI / 2, 0, 0]}
             scale={[1, 1, 1]}>
-            <planeGeometry args={[1000, 1000, 64, 64]} />
+            <planeGeometry args={[800, 800, 32, 32]} />
             <meshLambertMaterial
               color="#2E6F40"
               onBeforeCompile={(shader) => {
@@ -247,8 +247,7 @@ export function AqiVisualiser({
               float hillHeight = 8.0;
               float freq1 = 0.01;
               float freq2 = 0.005;
-              float freq3 = 0.003;
-              
+              float freq3 = 0.003;           
               float hill1 = sin(position.x * freq1) * cos(position.y * freq1) * hillHeight * 0.8;
               float hill2 = sin(position.x * freq2 + 1.5) * cos(position.y * freq2 + 2.0) * hillHeight * 0.6;
               float hill3 = sin(position.x * freq3 + 3.0) * cos(position.y * freq3 + 1.0) * hillHeight * 0.4;
