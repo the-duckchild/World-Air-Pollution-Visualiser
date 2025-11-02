@@ -2,15 +2,22 @@ import { useState } from "react";
 
 import { TickerTape } from "../.././components/TickerTape";
 import AqiFiguresDisplay from "../.././components/AqiFiguresDisplay";
-import {AqiVisualiser} from "../../components/AqiVisualiser/AqiVisualiser";
+import { AqiVisualiser } from "../../components/AqiVisualiser/AqiVisualiser";
 import type { AirQualityDataSetDto, Iaqi } from "../.././Api/ApiClient";
-import { FindDataForNearestStationForm, type LongLat } from "../.././components/FormComponents/FindDataForNearestStationForm";
+import {
+  FindDataForNearestStationForm,
+  type LongLat,
+} from "../.././components/FormComponents/FindDataForNearestStationForm";
+import { MapComponent } from "../.././components/FormComponents/MapComponent";
+import { useForm } from "react-hook-form";
 import "leaflet/dist/leaflet.css";
 import "../.././styles/globals.css";
 import "../.././styles/app.css";
 
 const HomePage = () => {
-  const [enabledSystems, setEnabledSystems] = useState<Record<string, boolean>>({
+  const [enabledSystems, setEnabledSystems] = useState<
+    Record<string, boolean>
+  >({
     aqi: true,
     co: false,
     co2: false,
@@ -29,54 +36,78 @@ const HomePage = () => {
     so2: { v: 0 },
   };
 
-  const [currentLongLat, setCurrentLongLat] = useState<LongLat>({Longitude: 0, Latitude: 0});    
-    const [aqiForClosestStation, setAqiForClosestStation] = useState<AirQualityDataSetDto | null>(null);
+  const [currentLongLat, setCurrentLongLat] = useState<LongLat>({
+    Longitude: 0,
+    Latitude: 0,
+  });
+  const [aqiForClosestStation, setAqiForClosestStation] =
+    useState<AirQualityDataSetDto | null>(null);
+  const [mapVisible, setMapVisible] = useState(false);
+
+  const { setValue } = useForm<LongLat>({
+    defaultValues: { Longitude: 0, Latitude: 0 },
+  });
+
+  const toggleMap = () => {
+    setMapVisible(!mapVisible);
+  };
     
-    return (
-        
-             <>
+  return (
+    <>
+      <div className="flex w-screen mb-4 portrait:flex-col portrait:items-center ">
+        <img
+          src="High-Resolution-Color-Logo-on-Transparent-Background_edited.png"
+          className="object-contain w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl h-auto portrait:mx-auto 3xl:absolute"
+        ></img>
+        <div className="w-full max-w-4xl px-4 mt-5 mx-auto">
+          <FindDataForNearestStationForm
+            currentLongLat={currentLongLat}
+            onCoordinatesChange={setCurrentLongLat}
+            mapVisible={mapVisible}
+            onToggleMap={toggleMap}
+          />
+        </div>
+      </div>
 
-             <div className="flex w-screen mb-4 portrait:flex-col portrait:items-center ">
-               <img src="High-Resolution-Color-Logo-on-Transparent-Background_edited.png" className="object-contain w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl h-auto portrait:mx-auto 3xl:absolute"></img>
-            <div className="w-full max-w-4xl px-4 mt-5 mx-auto">
-                 <FindDataForNearestStationForm currentLongLat={currentLongLat} onCoordinatesChange={setCurrentLongLat} />
-               </div> 
-               </div>
+      <div className="min-h-95vh flex flex-col min-w-screen items-center space-y-6">
+        {/* Container for both AqiVisualiser and MapComponent */}
+        <div className="flex justify-center">
+          {/* AqiVisualiser - hidden when map is visible */}
+          <div style={{ display: mapVisible ? "none" : "block" }}>
+            <AqiVisualiser
+              data={aqiForClosestStation?.data?.iaqi || fallbackIaqi}
+              overallAqi={aqiForClosestStation?.data?.aqi}
+              enabledSystems={enabledSystems}
+              longitude={currentLongLat.Longitude}
+              latitude={currentLongLat.Latitude}
+            />
+          </div>
 
+          {/* MapComponent - shown when map is visible */}
+          <MapComponent
+            mapVisible={mapVisible}
+            onCoordinatesChange={setCurrentLongLat}
+            setValue={setValue}
+          />
+        </div>
 
-
-             <div className="min-h-95vh flex flex-col min-w-screen items-center space-y-6">
-               
-
-               <div className="flex justify-center">
-                 <AqiVisualiser 
-                   data={aqiForClosestStation?.data?.iaqi || fallbackIaqi} 
-                   overallAqi={aqiForClosestStation?.data?.aqi}
-                   enabledSystems={enabledSystems}
-                   longitude={currentLongLat.Longitude}
-                   latitude={currentLongLat.Latitude}
-                 />
-               </div>
-
-
-               <div className="w-full max-w-6xl px-4">
-                 <AqiFiguresDisplay 
-                   currentLongLat={currentLongLat} 
-                   aqiForClosestStation={aqiForClosestStation} 
-                   enabledSystems={enabledSystems}
-                   onAqiChange={setAqiForClosestStation}
-                   onToggleSystem={(key: string) => {
-                     setEnabledSystems(prev => ({
-                       ...prev,
-                       [key]: !prev[key]
-                     }));
-                   }}
-                 />
-               </div>
-               
-             </div>
-             <TickerTape />
-           </>
-        );
-}
+        <div className="w-full max-w-6xl px-4">
+          <AqiFiguresDisplay
+            currentLongLat={currentLongLat}
+            aqiForClosestStation={aqiForClosestStation}
+            enabledSystems={enabledSystems}
+            onAqiChange={setAqiForClosestStation}
+            onToggleSystem={(key: string) => {
+              setEnabledSystems((prev) => ({
+                ...prev,
+                [key]: !prev[key],
+              }));
+            }}
+          />
+        </div>
+      </div>
+      <TickerTape />
+    </>
+  );
+};
 export default HomePage;
