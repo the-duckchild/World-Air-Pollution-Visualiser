@@ -17,6 +17,27 @@ interface AqiFiguresDisplayProps {
   onToggleSystem: (key:string) => void;
 }
 
+interface AirQualityLevel {
+  color: string;
+  label: string;
+}
+
+const getAirQualityLevel = (value: number): AirQualityLevel => {
+  if (value >= 0 && value <= 50) {
+    return { color: '#22c55e', label: 'Good' }; // green
+  } else if (value >= 51 && value <= 100) {
+    return { color: '#eab308', label: 'Moderate' }; // yellow
+  } else if (value >= 101 && value <= 150) {
+    return { color: '#f97316', label: 'Unhealthy for sensitive individuals' }; // orange
+  } else if (value >= 151 && value <= 200) {
+    return { color: '#ef4444', label: 'Unhealthy' }; // red
+  } else if (value >= 201 && value <= 300) {
+    return { color: '#a855f7', label: 'Very Unhealthy' }; // purple
+  } else {
+    return { color: '#800000', label: 'Hazardous' }; // maroon
+  }
+};
+
 const AqiFigures: React.FC<AqiFiguresDisplayProps> = ({ 
   currentLongLat, 
   aqiForClosestStation,
@@ -71,47 +92,7 @@ const AqiFigures: React.FC<AqiFiguresDisplayProps> = ({
 
 
   return (
-  //  <Card className="p-4 md:p-6 max-w-7xl mx-auto w-full">
-  //   <div className="aqi bg-white p-4 flex flex-col w-200 rounded-md space-y-2 m-5">
-  //     <div className="flex flex-row justify-between items-center">
-  //       <div>
-  //         <h3 className="font-bold text-lg mb-2">Air Quality Data</h3> 
-  //         <p><strong>Location:</strong> {aqiForClosestStation?.data?.city?.name || 'Unknown'}</p>
-  //       </div>
-  //       {currentTime && (
-  //         <div className="text-right">
-  //           <p className="text-sm text-gray-600">Local Time</p>
-  //           <p className="font-mono text-lg">{currentTime}</p>
-  //         </div>
-  //       )}
-  //     </div>
-  //     <div className="grid grid-cols-4 gap-4">
-  //       <div className="">
-  //         <p><strong>Overall AQI:</strong> {aqiForClosestStation?.data?.aqi || 'N/A'}</p>
-          
 
-  //       </div>
-  //       <div>
-  //         <p><strong>PM10:</strong> {aqiForClosestStation?.data?.iaqi?.pm10?.v || 'N/A'} μg/m³</p>
-  //         <p><strong>PM2.5:</strong> {aqiForClosestStation?.data?.iaqi?.pm25?.v || 'N/A'} μg/m³</p>                 
-          
-          
-  //       </div>
-  //       <div>
-  //         <p><strong>CO₂:</strong> {aqiForClosestStation?.data?.iaqi?.co2?.v || 'N/A'} μg/m³</p>
-  //         <p><strong>CO:</strong> {aqiForClosestStation?.data?.iaqi?.co?.v || 'N/A'} μg/m³</p>
-  //       </div>
-  //       <div>
-  //         <p><strong>NO₂:</strong> {aqiForClosestStation?.data?.iaqi?.no2?.v || 'N/A'} μg/m³</p>
-  //         <p><strong>SO₂:</strong> {aqiForClosestStation?.data?.iaqi?.so2?.v || 'N/A'} μg/m³</p>  
-  //       </div>
-  //     </div>
-  //     <div className="mt-2">
-        
-        
-  //     </div>
-  //   </div>
-  //   </ Card>
 
     <Card className="p-4 md:p-6 max-w-7xl mx-auto w-full">
       <h3 className="font-bold text-lg">Air Quality Data</h3> 
@@ -166,6 +147,7 @@ const AqiFigures: React.FC<AqiFiguresDisplayProps> = ({
                   style={{
                     backgroundColor: isAvailable ? `${config.color}15` : 'transparent',
                     borderColor: isAvailable ? config.color : 'var(--border)',
+                    minHeight: '140px',
                   }}
                 >
                   <div className="flex items-center justify-between w-full">
@@ -182,14 +164,40 @@ const AqiFigures: React.FC<AqiFiguresDisplayProps> = ({
                       onCheckedChange={() => onToggleSystem(config.key)}
                       disabled={!isAvailable} />
                   </div>
-                  {isAvailable && pollutantData && (
-                    <div className="text-lg font-bold text-gray-800">
-                      {pollutantData.v}
+                  
+                  {/* Traffic light indicator and value */}
+                  <div className="flex items-center gap-3">
+                    {/* Circular traffic light indicator */}
+                    <div
+                      className="shrink-0 rounded-full border w-5 h-5 sm:w-6 sm:h-6"
+                      style={{
+                        backgroundColor: isAvailable && pollutantData 
+                          ? getAirQualityLevel(pollutantData.v).color 
+                          : 'rgba(0, 0, 0, 0.1)',
+                        borderColor: isAvailable && pollutantData 
+                          ? getAirQualityLevel(pollutantData.v).color 
+                          : 'rgba(0, 0, 0, 0.3)',
+                        borderWidth: '2px',
+                      }}
+                      title={isAvailable && pollutantData ? getAirQualityLevel(pollutantData.v).label : 'No data'}
+                    />
+                    
+                    {/* Value and quality label */}
+                    <div className="flex flex-col flex-1 min-w-0">
+                      {isAvailable && pollutantData ? (
+                        <>
+                          <div className="text-lg font-bold text-gray-800">
+                            {pollutantData.v}
+                          </div>
+                          <div className="text-xs text-gray-600 leading-tight wrap-break-word">
+                            {getAirQualityLevel(pollutantData.v).label}
+                          </div>
+                        </>
+                      ) : (
+                        <div className="text-sm text-muted-foreground italic">No data available</div>
+                      )}
                     </div>
-                  )}
-                  {!isAvailable && (
-                    <div className="text-sm text-muted-foreground italic">No data available</div>
-                  )}
+                  </div>
                 </div>
               );
             })}

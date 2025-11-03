@@ -1,5 +1,4 @@
 import { type JSX, useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
 import { LocationMarkerMap } from "./LocationMarkerMap";
 import { MapContainer, TileLayer } from "react-leaflet";
 import { latLng, LatLng } from "leaflet";
@@ -48,10 +47,6 @@ export function MapComponent({
       {mapVisible && (
         <div
           key="map"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ ease: "easeInOut", duration: 0.5 }}
           style={{
             width: "75vw",
             height: "50vh",
