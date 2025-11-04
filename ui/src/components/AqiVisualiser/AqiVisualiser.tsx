@@ -1,4 +1,4 @@
-import { PerspectiveCamera, OrbitControls, Edges, Bounds } from "@react-three/drei";
+import { PerspectiveCamera, OrbitControls, Edges } from "@react-three/drei";
 import type { OrbitControls as OrbitControlsImpl } from "three-stdlib";
 import type { Iaqi } from "../../Api/ApiClient";
 import { useEffect, useRef, useState, useMemo } from "react";
@@ -19,7 +19,7 @@ interface AirQualityVisualizationProps {
 }
 
 let BOUNDS = { x: 100, y: 20, z: 25 };
-let ROTATION = {x: 0.3, y: 0, z: 0};
+let ROTATION = {x: 0.2, y: 0, z: 0};
 
 
 export function AqiVisualiser({
@@ -52,11 +52,8 @@ export function AqiVisualiser({
       const windowWidth = window.innerWidth;
       const windowHeight = window.innerHeight;
       const isPortrait = windowHeight > windowWidth;
-      // const isMobile = windowWidth < 900;
 
-      // Calculate zoom based on window size
-      // Smaller windows need more zoom out to fit content
-      let zoomDistance = 60; // Default for large desktop
+      let zoomDistance = 60; 
       if (isPortrait) {
         BOUNDS = { x: 40, y: 40, z: 40 };
         ROTATION = {x: 0, y:0, z:0};
@@ -66,18 +63,17 @@ export function AqiVisualiser({
         zoomDistance = 325;
       } else if (windowWidth < 800) {
         zoomDistance = 100;
-      } // For desktop landscape, adjust zoom based on width
+      } 
       else if (windowWidth < 1000) {
         zoomDistance = 110;
       } else if (windowWidth < 1200) {
-        zoomDistance = 95; // Smaller desktop windows
+        zoomDistance = 95;
       } else if (windowWidth < 1920) {
-        zoomDistance = 70; // Standard desktop
+        zoomDistance = 70; 
       } else {
-        zoomDistance = 55; // Large desktop screens can zoom in more
+        zoomDistance = 55; 
       }
-      console.log("zoom" + zoomDistance);
-      console.log(windowWidth);
+
 
       setCameraPosition([0, 0, zoomDistance]);
     };
