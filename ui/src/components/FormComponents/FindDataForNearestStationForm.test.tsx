@@ -33,7 +33,9 @@ vi.mock('./FindDataForNearestStationForm.css', () => ({}))
 
 const mockProps = {
   currentLongLat: { Longitude: -0.1278, Latitude: 51.5074 },
-  onCoordinatesChange: vi.fn()
+  onCoordinatesChange: vi.fn(),
+  mapVisible: false,
+  onToggleMap: vi.fn()
 }
 
 describe('FindDataForNearestStationForm', () => {
@@ -175,28 +177,6 @@ describe('FindDataForNearestStationForm', () => {
     })
   })
 
-  it('handles missing onCoordinatesChange prop gracefully', async () => {
-    const user = userEvent.setup()
-    const propsWithoutCallback = {
-      currentLongLat: { Longitude: -0.1278, Latitude: 51.5074 }
-    }
-    
-    render(<FindDataForNearestStationForm {...propsWithoutCallback} />)
-    
-    const longitudeInput = screen.getByPlaceholderText('Longitude')
-    const latitudeInput = screen.getByPlaceholderText('Latitude')
-    const submitButton = screen.getByRole('button', { name: /submit/i })
-    
-    // Fill and submit form
-    await user.clear(longitudeInput)
-    await user.type(longitudeInput, '0')
-    await user.clear(latitudeInput)
-    await user.type(latitudeInput, '0')
-    
-    // Should not throw error when submitting without callback
-    expect(() => user.click(submitButton)).not.toThrow()
-  })
-
   it('displays coordinate labels correctly', () => {
     render(<FindDataForNearestStationForm {...mockProps} />)
     
@@ -204,10 +184,12 @@ describe('FindDataForNearestStationForm', () => {
     expect(screen.getByText('Latitude')).toBeInTheDocument()
   })
 
-  it('handles undefined currentLongLat gracefully', () => {
+  it('does not display current location when coordinates are undefined', () => {
     const propsWithUndefinedCoords = {
       currentLongLat: { Longitude: undefined as any, Latitude: undefined as any },
-      onCoordinatesChange: vi.fn()
+      onCoordinatesChange: vi.fn(),
+      mapVisible: false,
+      onToggleMap: vi.fn()
     }
     
     render(<FindDataForNearestStationForm {...propsWithUndefinedCoords} />)

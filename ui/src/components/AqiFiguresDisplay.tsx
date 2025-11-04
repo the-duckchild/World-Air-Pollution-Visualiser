@@ -101,7 +101,7 @@ const AqiFigures: React.FC<AqiFiguresDisplayProps> = ({
       {currentLongLat.Latitude === 0 && currentLongLat.Longitude === 0 ? (
         <div className="text-center py-4 text-gray-500">
           <p className="text-lg">📍 No location selected</p>
-          <p>Click on the map below or enter coordinates to view air quality data</p>
+          <p>Choose location with the map to view air quality data</p>
         </div>
       ) : (
         <>

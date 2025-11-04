@@ -52,6 +52,7 @@ export function AqiVisualiser({
       const windowWidth = window.innerWidth;
       const windowHeight = window.innerHeight;
       const isPortrait = windowHeight > windowWidth;
+  
 
       let zoomDistance = 60; 
       if (isPortrait) {
@@ -60,7 +61,7 @@ export function AqiVisualiser({
       }
 
       if (windowWidth < 600) {
-        zoomDistance = 325;
+        zoomDistance = 125;
       } else if (windowWidth < 800) {
         zoomDistance = 100;
       } 
@@ -73,9 +74,11 @@ export function AqiVisualiser({
       } else {
         zoomDistance = 55; 
       }
-
-
+      
+      console.log("width" + windowWidth);
+console.log("zoom" + zoomDistance);
       setCameraPosition([0, 0, zoomDistance]);
+      
     };
 
     updateCameraPosition();
@@ -208,7 +211,7 @@ export function AqiVisualiser({
               enableDamping
               dampingFactor={0.05}
               minPolarAngle={0}
-              maxPolarAngle={Math.PI * 0.599}
+              maxPolarAngle={Math.PI * 0.551}
               minDistance={10}
               maxDistance={200}
             />

@@ -34,11 +34,12 @@ export function FindDataForNearestStationForm({
   }
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border p-2 mb-5 mx-auto">
+    <div className="bg-white rounded-lg shadow-sm border p-2 portrait:p-0 mb-5 portrait:mb-2 mx-auto portrait:w-[75vw]">
       <form onSubmit={handleSubmit(submitForm)}>
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div className="flex-1">
-            <p className="font-medium text-gray-700 mb-2">
+        <div className="flex flex-col sm:items-center sm:justify-between portrait:gap-2">
+          {/* Desktop: Show instructional text */}
+          <div className="flex-1 portrait:hidden">
+            <p className="hidden xl:flex text-gray-700 mb-2">
               Click on the map to select location and view air quality data
             </p>
 
@@ -77,7 +78,7 @@ export function FindDataForNearestStationForm({
           {/* Action button */}
           <div className="flex gap-2 sm:w-auto w-full">
             <button
-              className={`px-4 py-2 text-white rounded-md text-sm font-medium flex-1 sm:flex-none sm:w-32 ${
+              className={`px-4 py-2 portrait:px-3 portrait:py-1.5 text-white rounded-md text-sm portrait:text-xs font-medium flex-1 sm:flex-none sm:w-32 portrait:w-full ${
                 mapVisible
                   ? "bg-red-600 hover:bg-red-700"
                   : "bg-blue-600 hover:bg-blue-700"
@@ -85,7 +86,8 @@ export function FindDataForNearestStationForm({
               type="button"
               onClick={onToggleMap}
             >
-              {mapVisible ? "Hide Map" : "Show Map"}
+              <span className="portrait:hidden">{mapVisible ? "Hide Map" : "Show Map"}</span>
+              <span className="hidden portrait:inline">{mapVisible ? "Hide Map" : "Select Location"}</span>
             </button>
           </div>
         </div>
