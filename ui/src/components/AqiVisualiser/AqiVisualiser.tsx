@@ -1,4 +1,4 @@
-import { PerspectiveCamera, OrbitControls, Edges } from "@react-three/drei";
+import { PerspectiveCamera, OrbitControls, Edges, Bounds } from "@react-three/drei";
 import type { OrbitControls as OrbitControlsImpl } from "three-stdlib";
 import type { Iaqi } from "../../Api/ApiClient";
 import { useEffect, useRef, useState, useMemo } from "react";
@@ -8,7 +8,7 @@ import * as THREE from "three";
 import Grass from "./Grass";
 import { Sun } from "./Sun";
 import { CloudPattern } from "./Clouds";
-import {PARTICLE_CONFIGS} from "./ParticleConfigs"
+import { PARTICLE_CONFIGS } from "./ParticleConfigs";
 
 interface AirQualityVisualizationProps {
   data: Iaqi;
@@ -18,9 +18,9 @@ interface AirQualityVisualizationProps {
   latitude?: number; // Optional latitude for location-based time calculation
 }
 
+let BOUNDS = { x: 100, y: 20, z: 25 };
+let ROTATION = {x: 0.3, y: 0, z: 0};
 
-
-const BOUNDS = { x: 100, y: 20, z: 25 };
 
 export function AqiVisualiser({
   data,
@@ -52,32 +52,32 @@ export function AqiVisualiser({
       const windowWidth = window.innerWidth;
       const windowHeight = window.innerHeight;
       const isPortrait = windowHeight > windowWidth;
-      const isMobile = windowWidth < 768;
+      // const isMobile = windowWidth < 900;
 
       // Calculate zoom based on window size
       // Smaller windows need more zoom out to fit content
-      let zoomDistance = 65; // Default for large desktop
-
-      if (isMobile || isPortrait) {
-        // For mobile/portrait, zoom out more based on how small the window is
-        const minDimension = Math.min(windowWidth, windowHeight);
-        if (minDimension < 800) {
-          zoomDistance = 200; // Very small screens
-        } else if (minDimension < 1200) {
-          zoomDistance = 150; // Small screens
-        } else {
-          zoomDistance = 100; // Medium screens in portrait
-        }
-      } else {
-        // For desktop landscape, adjust zoom based on width
-        if (windowWidth < 1200) {
-          zoomDistance = 85; // Smaller desktop windows
-        } else if (windowWidth < 1920) {
-          zoomDistance = 65; // Standard desktop
-        } else {
-          zoomDistance = 55; // Large desktop screens can zoom in more
-        }
+      let zoomDistance = 60; // Default for large desktop
+      if (isPortrait) {
+        BOUNDS = { x: 40, y: 40, z: 40 };
+        ROTATION = {x: 0, y:0, z:0};
       }
+
+      if (windowWidth < 600) {
+        zoomDistance = 325;
+      } else if (windowWidth < 800) {
+        zoomDistance = 100;
+      } // For desktop landscape, adjust zoom based on width
+      else if (windowWidth < 1000) {
+        zoomDistance = 110;
+      } else if (windowWidth < 1200) {
+        zoomDistance = 95; // Smaller desktop windows
+      } else if (windowWidth < 1920) {
+        zoomDistance = 70; // Standard desktop
+      } else {
+        zoomDistance = 55; // Large desktop screens can zoom in more
+      }
+      console.log("zoom" + zoomDistance);
+      console.log(windowWidth);
 
       setCameraPosition([0, 0, zoomDistance]);
     };
@@ -106,36 +106,38 @@ export function AqiVisualiser({
   // Memoize particle counts to avoid recalculation on every render
   const particleCounts = useMemo(() => {
     const counts: Record<string, number> = {};
-    
-    PARTICLE_CONFIGS.forEach(config => {
+
+    PARTICLE_CONFIGS.forEach((config) => {
       if (!enabledSystems[config.key]) {
         counts[config.key] = 0;
         return;
       }
-      
+
       let pollutantValue: number | undefined;
-      
-      if (config.key === 'aqi') {
+
+      if (config.key === "aqi") {
         pollutantValue = overallAqi;
       } else {
         const pollutantData = data[config.key as keyof Iaqi];
         pollutantValue = pollutantData?.v;
       }
-      
-      counts[config.key] = pollutantValue ? getParticleCount(pollutantValue) : 0;
+
+      counts[config.key] = pollutantValue
+        ? getParticleCount(pollutantValue)
+        : 0;
     });
-    
+
     return counts;
   }, [data, overallAqi, enabledSystems]);
 
   return (
     <>
-      <div style={{ position: 'relative' }}>
+      <div style={{ position: "relative" }}>
         {/* Loading overlay */}
         {isLoading && (
           <div
             style={{
-              position: 'absolute',
+              position: "absolute",
               top: 0,
               left: 0,
               width: "75vw",
@@ -148,9 +150,8 @@ export function AqiVisualiser({
               justifyContent: "center",
               backgroundColor: "rgba(248, 249, 250, 0.95)",
               zIndex: 1000,
-              backdropFilter: "blur(2px)"
-            }}
-          >
+              backdropFilter: "blur(2px)",
+            }}>
             <div
               style={{
                 width: "60px",
@@ -162,19 +163,21 @@ export function AqiVisualiser({
                 marginBottom: "20px",
               }}
             />
-            <h3 style={{
-              color: "#495057",
-              fontSize: "18px",
-              fontWeight: "600",
-              margin: "0 0 8px 0"
-            }}>
+            <h3
+              style={{
+                color: "#495057",
+                fontSize: "18px",
+                fontWeight: "600",
+                margin: "0 0 8px 0",
+              }}>
               Loading Air Quality Visualisation
             </h3>
-            <p style={{
-              color: "#6c757d",
-              fontSize: "14px",
-              margin: 0
-            }}>
+            <p
+              style={{
+                color: "#6c757d",
+                fontSize: "14px",
+                margin: 0,
+              }}>
               Preparing environment...
             </p>
             <style>{`
@@ -194,55 +197,54 @@ export function AqiVisualiser({
             borderRadius: "25px",
           }}>
           <Canvas
-            gl={{ 
+            gl={{
               antialias: false,
               alpha: false,
-              powerPreference: "high-performance"
+              powerPreference: "high-performance",
             }}
             dpr={[1, 1.5]}
-            performance={{ min: 0.8 }}
-          >
-          <fog attach="fog" args={[0xcccccc, 200, 600]} />
-          <Sun longitude={longitude} latitude={latitude} />
-          <ambientLight color={0xffffff} intensity={0.3} />
-          <OrbitControls
-            ref={orbitControlsRef}
-            enableDamping
-            dampingFactor={0.05}
-            minPolarAngle={0}
-            maxPolarAngle={Math.PI * 0.599}
-            minDistance={10}
-            maxDistance={200}
-          />
-          <PerspectiveCamera
-            makeDefault
-            fov={45}
-            near={1}
-            far={400}
-            position={cameraPosition}
-          />
-
-          <group position={[0, -25.1, 0]}>
-            <Grass
-              instances={750000}
-              width={800}
-              depth={800}
-              windStrength={0.8}
+            performance={{ min: 0.8 }}>
+            <fog attach="fog" args={[0xcccccc, 200, 600]} />
+            <Sun longitude={longitude} latitude={latitude} />
+            <ambientLight color={0xffffff} intensity={0.3} />
+            <OrbitControls
+              ref={orbitControlsRef}
+              enableDamping
+              dampingFactor={0.05}
+              minPolarAngle={0}
+              maxPolarAngle={Math.PI * 0.599}
+              minDistance={10}
+              maxDistance={200}
             />
-          </group>
+            <PerspectiveCamera
+              makeDefault
+              fov={45}
+              near={1}
+              far={400}
+              position={cameraPosition}
+            />
 
-          {/* Rolling hills terrain - fallback plane */}
-          <mesh
-            position={[0, -25.2, 0]}
-            rotation={[-Math.PI / 2, 0, 0]}
-            scale={[1, 1, 1]}>
-            <planeGeometry args={[800, 800, 32, 32]} />
-            <meshLambertMaterial
-              color="#2E6F40"
-              onBeforeCompile={(shader) => {
-                shader.vertexShader = shader.vertexShader.replace(
-                  "#include <begin_vertex>",
-                  `
+            <group position={[0, -25.1, 0]}>
+              <Grass
+                instances={750000}
+                width={800}
+                depth={800}
+                windStrength={0.8}
+              />
+            </group>
+
+            {/* Rolling hills terrain - fallback plane */}
+            <mesh
+              position={[0, -25.2, 0]}
+              rotation={[-Math.PI / 2, 0, 0]}
+              scale={[1, 1, 1]}>
+              <planeGeometry args={[800, 800, 32, 32]} />
+              <meshLambertMaterial
+                color="#2E6F40"
+                onBeforeCompile={(shader) => {
+                  shader.vertexShader = shader.vertexShader.replace(
+                    "#include <begin_vertex>",
+                    `
               #include <begin_vertex>
               float hillHeight = 8.0;
               float freq1 = 0.01;
@@ -254,49 +256,49 @@ export function AqiVisualiser({
               
               transformed.z += hill1 + hill2 + hill3;
               `
+                  );
+                }}
+              />
+            </mesh>
+
+            <CloudPattern />
+            <mesh rotation={[ROTATION.x, ROTATION.y, ROTATION.z]} renderOrder={2}>
+              <boxGeometry args={[BOUNDS.x, BOUNDS.y, BOUNDS.z]} />
+
+              <meshStandardMaterial
+                color={0xffffff}
+                opacity={0.08}
+                transparent={true}
+                depthWrite={false}
+                blending={THREE.AdditiveBlending}
+              />
+              <Edges
+                linewidth={2}
+                scale={1}
+                threshold={15} // Display edges only when the angle between two faces exceeds this value (default=15 degrees)
+                color="white"
+              />
+
+              {PARTICLE_CONFIGS.map((config) => {
+                const particleCount = particleCounts[config.key];
+
+                if (!particleCount || !enabledSystems[config.key]) return null;
+
+                return (
+                  <ParticleSystem
+                    key={config.key}
+                    systemId={config.key}
+                    count={particleCount}
+                    color={config.color}
+                    bounds={BOUNDS}
+                    allParticles={allParticles}
+                  />
                 );
-              }}
-            />
-          </mesh>
-
-          <CloudPattern />
-          <mesh rotation={[0.3, 0, 0]} renderOrder={2}>
-            <boxGeometry args={[100, 20, 25]} />
-
-            <meshStandardMaterial
-              color={0xffffff}
-              opacity={0.08}
-              transparent={true}
-              depthWrite={false}
-              blending={THREE.AdditiveBlending}
-            />
-            <Edges
-              linewidth={2}
-              scale={1}
-              threshold={15} // Display edges only when the angle between two faces exceeds this value (default=15 degrees)
-              color="white"
-            />
-
-            {PARTICLE_CONFIGS.map((config) => {
-              const particleCount = particleCounts[config.key];
-              
-              if (!particleCount || !enabledSystems[config.key]) return null;
-
-              return (
-                <ParticleSystem
-                  key={config.key}
-                  systemId={config.key}
-                  count={particleCount}
-                  color={config.color}
-                  bounds={BOUNDS}
-                  allParticles={allParticles}
-                />
-              );
-            })}
-          </mesh>
+              })}
+            </mesh>
           </Canvas>
         </div>
       </div>
     </>
   );
-};
+}
