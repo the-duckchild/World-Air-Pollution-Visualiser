@@ -9,7 +9,7 @@ namespace api.Repositories;
 
 public interface IAirQualityDataRepository
 {
-    Task<AirQualityDataSetDto> GetDataByUID(int uid);
+    Task<AirQualityDataSetDto> GetDataByUID(string uid);
     Task<AirQualityDataSetDto> GetDataByLatLon(float lat, float lon);
 }
 
@@ -22,7 +22,7 @@ public class AirQualityDataRepository : IAirQualityDataRepository
         _context = context;
     }
 
-    public async Task<AirQualityDataSetDto> GetDataByUID(int uid)
+    public async Task<AirQualityDataSetDto> GetDataByUID(string uid)
     {
         var envVars = DotEnv.Read();
         var client = new RestClient();

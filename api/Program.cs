@@ -67,7 +67,11 @@ using (var serviceScope = app.Services.CreateScope())
     }
 
     app.UseCors(AllowSpecificOrigins);
-    app.UseHttpsRedirection();
+
+    if (!app.Environment.IsDevelopment())
+    {
+        app.UseHttpsRedirection();
+    }
 
     app.UseAuthorization();
 
