@@ -1,5 +1,3 @@
-using api.Database;
-using api.Migrations;
 using api.Models.Dto;
 using dotenv.net;
 using Newtonsoft.Json.Linq;
@@ -15,11 +13,8 @@ public interface IAirQualityDataRepository
 
 public class AirQualityDataRepository : IAirQualityDataRepository
 {
-    private readonly AirPollutionDbContext _context;
-
-    public AirQualityDataRepository(AirPollutionDbContext context)
+    public AirQualityDataRepository()
     {
-        _context = context;
     }
 
     public async Task<AirQualityDataSetDto> GetDataByUID(string uid)
