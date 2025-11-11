@@ -1,5 +1,4 @@
 using api.Models.Dto;
-using dotenv.net;
 using Newtonsoft.Json.Linq;
 using RestSharp;
 
@@ -19,10 +18,11 @@ public class AirQualityDataRepository : IAirQualityDataRepository
 
     public async Task<AirQualityDataSetDto> GetDataByUID(string uid)
     {
-        var envVars = DotEnv.Read();
+        var apiKey = Environment.GetEnvironmentVariable("AIR_POLLUTION_API_KEY") 
+            ?? throw new InvalidOperationException("AIR_POLLUTION_API_KEY environment variable is not set");
         var client = new RestClient();
         var request = new RestRequest(
-            $"http://api.waqi.info/feed/@{uid}/?token={envVars["AIR_POLLUTION_API_KEY"]}",
+            $"http://api.waqi.info/feed/@{uid}/?token={apiKey}",
             Method.Get
         );
 
@@ -49,10 +49,11 @@ public class AirQualityDataRepository : IAirQualityDataRepository
 
     public async Task<AirQualityDataSetDto> GetDataByLatLon(float lat, float lon)
     {
-        var envVars = DotEnv.Read();
+        var apiKey = Environment.GetEnvironmentVariable("AIR_POLLUTION_API_KEY") 
+            ?? throw new InvalidOperationException("AIR_POLLUTION_API_KEY environment variable is not set");
         var client = new RestClient();
         var request = new RestRequest(
-            $"http://api.waqi.info/feed/geo:{lat};{lon}/?token={envVars["AIR_POLLUTION_API_KEY"]}",
+            $"http://api.waqi.info/feed/geo:{lat};{lon}/?token={apiKey}",
             Method.Get
         );
 
