@@ -1,6 +1,6 @@
 {
     "scripts": {
-  "test": "cd ui && npm test"
+        "test": "cd ui && npm test"
 },
   "dependencies": {
     "leaflet": "^1.9.4",
