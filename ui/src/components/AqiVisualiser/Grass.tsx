@@ -1,4 +1,6 @@
 import { useRef, useMemo, useEffect, memo } from 'react';
+import bladeDiffuseUrl from '../../assets/blade_diffuse.jpg';
+import bladeAlphaUrl from '../../assets/blade_alpha.jpg';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 
@@ -93,16 +95,17 @@ const Grass = memo(function Grass({
   }, [bladeWidth, bladeHeight]);
 
   // Load textures
+
   const grassTexture = useMemo(() => {
     const loader = new THREE.TextureLoader();
-    const texture = loader.load('../assets/blade_diffuse.jpg');
+    const texture = loader.load(bladeDiffuseUrl);
     texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
     return texture;
   }, []);
 
   const alphaTexture = useMemo(() => {
     const loader = new THREE.TextureLoader();
-    const texture = loader.load('../assets/blade_alpha.jpg');
+    const texture = loader.load(bladeAlphaUrl);
     texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
     return texture;
   }, []);
