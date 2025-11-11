@@ -15,7 +15,6 @@ WORKDIR /app
 COPY --from=build /app/out .
 
 # Cloud Run uses PORT environment variable
-ENV ASPNETCORE_URLS=http://+:$PORT
 EXPOSE 8080
 
 ENTRYPOINT ["dotnet", "api.dll"]
