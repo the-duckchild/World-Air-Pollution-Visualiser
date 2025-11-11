@@ -48,6 +48,7 @@ builder.Services.AddCors(options =>
                 policy
                     .WithOrigins(
                         "https://air-pollution-visualiser.netlify.app",
+                        "https://worldairqualityvisualiser.online",
                         "https://air-pollution-visualiser-191519804984.europe-west1.run.app"
                     )
                     .AllowAnyMethod()
