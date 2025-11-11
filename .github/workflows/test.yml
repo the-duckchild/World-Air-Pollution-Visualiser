@@ -26,10 +26,6 @@ jobs:
         working-directory: ui
         run: npm install
 
-      - name: Install dependencies (ui)
-        working-directory: ui
-        run: npm ci
-
       - name: Run tests (ui)
         working-directory: ui
         run: npm test
