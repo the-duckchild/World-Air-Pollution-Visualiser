@@ -28,7 +28,7 @@ public class AirQualityDataControllerTests
             Data = new Data
             {
                 Aqi = 42,
-                Idx = int.Parse(testUID),
+                Idx = 123,
                 City = new City
                 {
                     Name = "London",

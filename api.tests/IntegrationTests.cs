@@ -27,8 +27,6 @@ public class IntegrationTests : IClassFixture<WebApplicationFactory<Program>>
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
     }
 
-    
-
     [Fact]
     public async Task AirQualityByUID_WithValidUID_ReturnsSuccessStatusCode()
     {
