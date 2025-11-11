@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { getAqiFiguresByLatLon } from './ApiClient'
+import { getAqiFiguresByLatLon, getAqiFiguresByUID, getAqiFiguresByUIDs } from './ApiClient'
 import type { AirQualityDataSetDto } from './ApiClient'
 
 // Mock fetch globally
@@ -54,6 +54,7 @@ describe('ApiClient', () => {
   describe('getAqiFiguresByLatLon', () => {
     it('makes correct API call with lat/lon parameters', async () => {
       mockFetch.mockResolvedValueOnce({
+        ok: true,
         json: async () => mockAqiResponse
       })
 
@@ -67,6 +68,7 @@ describe('ApiClient', () => {
 
     it('handles positive coordinates correctly', async () => {
       mockFetch.mockResolvedValueOnce({
+        ok: true,
         json: async () => mockAqiResponse
       })
 
@@ -79,6 +81,7 @@ describe('ApiClient', () => {
 
     it('handles negative coordinates correctly', async () => {
       mockFetch.mockResolvedValueOnce({
+        ok: true,
         json: async () => mockAqiResponse
       })
 
@@ -91,6 +94,7 @@ describe('ApiClient', () => {
 
     it('handles zero coordinates correctly', async () => {
       mockFetch.mockResolvedValueOnce({
+        ok: true,
         json: async () => mockAqiResponse
       })
 
@@ -103,6 +107,7 @@ describe('ApiClient', () => {
 
     it('returns parsed JSON response', async () => {
       mockFetch.mockResolvedValueOnce({
+        ok: true,
         json: async () => mockAqiResponse
       })
 
@@ -121,6 +126,7 @@ describe('ApiClient', () => {
       }
 
       mockFetch.mockResolvedValueOnce({
+        ok: true,
         json: async () => errorResponse
       })
 
@@ -148,11 +154,12 @@ describe('ApiClient', () => {
 
       await expect(getAqiFiguresByLatLon(51.5074, -0.1278))
         .rejects
-        .toThrow('JSON parse error')
+        .toThrow('HTTP error! status: 500')
     })
 
     it('handles decimal precision in coordinates', async () => {
       mockFetch.mockResolvedValueOnce({
+        ok: true,
         json: async () => mockAqiResponse
       })
 
@@ -165,6 +172,7 @@ describe('ApiClient', () => {
 
     it('validates response structure', async () => {
       mockFetch.mockResolvedValueOnce({
+        ok: true,
         json: async () => mockAqiResponse
       })
 
@@ -210,6 +218,7 @@ describe('ApiClient', () => {
       }
 
       mockFetch.mockResolvedValueOnce({
+        ok: true,
         json: async () => responseWithoutIaqi
       })
 
@@ -217,6 +226,100 @@ describe('ApiClient', () => {
 
       expect(result.data?.iaqi?.co).toBeNull()
       expect(result.data?.iaqi?.pm25).toBeNull()
+    })
+  })
+
+  describe('getAqiFiguresByUID', () => {
+    it('makes correct API call with UID parameter', async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => mockAqiResponse
+      })
+
+      const result = await getAqiFiguresByUID('3307')
+
+      expect(mockFetch).toHaveBeenCalledWith(
+        'http://localhost:5090/air-quality-data-by-uid/3307'
+      )
+      expect(result).toEqual(mockAqiResponse)
+    })
+
+    it('handles string UIDs correctly', async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => mockAqiResponse
+      })
+
+      await getAqiFiguresByUID('A399061')
+
+      expect(mockFetch).toHaveBeenCalledWith(
+        'http://localhost:5090/air-quality-data-by-uid/A399061'
+      )
+    })
+
+    it('throws error on failed request', async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: false,
+        status: 500
+      })
+
+      await expect(getAqiFiguresByUID('123')).rejects.toThrow('HTTP error! status: 500')
+    })
+  })
+
+  describe('getAqiFiguresByUIDs', () => {
+    it('makes correct POST request with multiple UIDs', async () => {
+      const mockBatchResponse = {
+        '3307': mockAqiResponse,
+        '5724': mockAqiResponse,
+        '2302': mockAqiResponse
+      }
+
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => mockBatchResponse
+      })
+
+      const result = await getAqiFiguresByUIDs(['3307', '5724', '2302'])
+
+      expect(mockFetch).toHaveBeenCalledWith(
+        'http://localhost:5090/air-quality-data-by-uids',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(['3307', '5724', '2302'])
+        }
+      )
+      expect(result).toEqual(mockBatchResponse)
+    })
+
+    it('handles empty array', async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({})
+      })
+
+      const result = await getAqiFiguresByUIDs([])
+
+      expect(mockFetch).toHaveBeenCalledWith(
+        'http://localhost:5090/air-quality-data-by-uids',
+        expect.objectContaining({
+          method: 'POST',
+          body: JSON.stringify([])
+        })
+      )
+      expect(result).toEqual({})
+    })
+
+    it('throws error on failed request', async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: false,
+        status: 400
+      })
+
+      await expect(getAqiFiguresByUIDs(['123'])).rejects.toThrow('HTTP error! status: 400')
     })
   })
 })

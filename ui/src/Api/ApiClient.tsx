@@ -67,8 +67,34 @@ export interface So2 {
 }
 
 
-export async function getAqiFiguresByLatLon(lat: number, lon: number){
+export async function getAqiFiguresByLatLon(lat: number, lon: number): Promise<AirQualityDataSetDto> {
     const response = await fetch(`http://localhost:5090/air-quality-data-by-latlon/${lat}/${lon}`);
+    
+    if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    return response.json();
+}
+
+export async function getAqiFiguresByUID(uid: string): Promise<AirQualityDataSetDto> {
+    const response = await fetch(`http://localhost:5090/air-quality-data-by-uid/${uid}`);
+    
+    if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    return response.json();
+}
+
+export async function getAqiFiguresByUIDs(uids: string[]): Promise<Record<string, AirQualityDataSetDto>> {
+    const response = await fetch(`http://localhost:5090/air-quality-data-by-uids`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(uids),
+    });
     
     if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);

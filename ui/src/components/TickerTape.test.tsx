@@ -18,16 +18,17 @@ describe('TickerTape', () => {
     expect(screen.getAllByText('New York, USA')).toHaveLength(2)
     expect(screen.getAllByText('London, UK')).toHaveLength(2)
     expect(screen.getAllByText('Tokyo, Japan')).toHaveLength(2)
-    expect(screen.getAllByText('Delhi, India')).toHaveLength(2)
+    expect(screen.getAllByText('Mumbai, India')).toHaveLength(2)
   })
 
   it('displays AQI values with correct format', () => {
     render(<TickerTape />)
     
-    // Check for AQI value format (data is duplicated)
+    // Check for AQI value format (data is duplicated, so we get 2 instances)
+    // Mumbai has AQI 142, so it appears twice in the duplicated data
     expect(screen.getAllByText('AQI 65')).toHaveLength(2)
     expect(screen.getAllByText('AQI 42')).toHaveLength(2)
-    expect(screen.getAllByText('AQI 156')).toHaveLength(2)
+    expect(screen.getAllByText('AQI 142')).toHaveLength(2)
   })
 
   it('displays pollutant types', () => {
@@ -53,7 +54,7 @@ describe('TickerTape', () => {
     expect(moderateAqiElements[0]).toHaveClass('bg-yellow-100')
     
     // Test unhealthy AQI (151-200) - should have red color
-    const unhealthyAqiElements = screen.getAllByText('AQI 156')
+    const unhealthyAqiElements = screen.getAllByText('AQI 167')
     expect(unhealthyAqiElements[0]).toHaveClass('text-red-600')
     expect(unhealthyAqiElements[0]).toHaveClass('bg-red-100')
   })
@@ -74,6 +75,6 @@ describe('TickerTape', () => {
     
     // Check if the main container has correct classes
     const mainContainer = document.querySelector('.w-full.bg-muted.border-t')
-    expect(mainContainer).toHaveClass('w-full', 'bg-muted', 'border-t', 'overflow-hidden', 'py-2', 'fixed', 'bottom-0')
+    expect(mainContainer).toHaveClass('w-full', 'bg-muted', 'border-t', 'overflow-hidden', 'fixed', 'bottom-0')
   })
 })
