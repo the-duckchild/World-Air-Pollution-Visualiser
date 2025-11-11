@@ -66,9 +66,10 @@ export interface So2 {
     v: number;
 }
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5090';
 
 export async function getAqiFiguresByLatLon(lat: number, lon: number): Promise<AirQualityDataSetDto> {
-    const response = await fetch(`http://localhost:5090/air-quality-data-by-latlon/${lat}/${lon}`);
+    const response = await fetch(`${API_URL}/air-quality-data-by-latlon/${lat}/${lon}`);
     
     if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -78,7 +79,7 @@ export async function getAqiFiguresByLatLon(lat: number, lon: number): Promise<A
 }
 
 export async function getAqiFiguresByUID(uid: string): Promise<AirQualityDataSetDto> {
-    const response = await fetch(`http://localhost:5090/air-quality-data-by-uid/${uid}`);
+    const response = await fetch(`${API_URL}/air-quality-data-by-uid/${uid}`);
     
     if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -88,7 +89,7 @@ export async function getAqiFiguresByUID(uid: string): Promise<AirQualityDataSet
 }
 
 export async function getAqiFiguresByUIDs(uids: string[]): Promise<Record<string, AirQualityDataSetDto>> {
-    const response = await fetch(`http://localhost:5090/air-quality-data-by-uids`, {
+    const response = await fetch(`${API_URL}/air-quality-data-by-uids`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
