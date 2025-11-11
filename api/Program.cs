@@ -83,10 +83,11 @@ app.UseRateLimiting();
 
 app.UseCors(AllowSpecificOrigins);
 
-if (!app.Environment.IsDevelopment())
-{
-    app.UseHttpsRedirection();
-}
+// Don't use HTTPS redirection - Cloud Run handles HTTPS termination
+// if (!app.Environment.IsDevelopment())
+// {
+//     app.UseHttpsRedirection();
+// }
 
 app.UseAuthorization();
 
