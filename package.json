@@ -1,4 +1,7 @@
 {
+    "scripts": {
+        "test": "cd ui && npm test"
+},
   "dependencies": {
     "leaflet": "^1.9.4",
     "react-leaflet": "^5.0.0"
@@ -7,4 +10,5 @@
     "@types/leaflet": "^1.9.20",
     "@types/react-router-dom": "^5.3.3"
   }
+
 }

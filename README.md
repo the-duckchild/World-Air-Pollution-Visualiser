@@ -1,5 +1,7 @@
 # World Air Pollution Visualiser
 
+[![Netlify Status](https://api.netlify.com/api/v1/badges/ef6f6594-1863-40b2-b2b9-1cfb9025f7a5/deploy-status)](https://app.netlify.com/projects/worldairqualityvisualiser/deploys)
+
 ## Description
 
 Air Pollution Visualiser is a full-stack web application for exploring and visualising air quality data interactively. It features a React-based frontend with 3D AQI visualisation and a .NET API backend, allowing users to view, search, and analyse air pollution data from various stations.
