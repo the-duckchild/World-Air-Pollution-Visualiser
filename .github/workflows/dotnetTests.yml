@@ -1,24 +1,57 @@
----
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
     steps:
-      - name: Check out repository code
-        uses: actions/checkout@v2
+      - name: Check out repository
+        uses: actions/checkout@v4
+
       - name: Set up .NET
         uses: actions/setup-dotnet@v3
         with:
           dotnet-version: 8.x
-      - name: Restore dependencies
-        run: dotnet restore ./src/sales-management-api.sln
-      - name: Build the solution
-        run: dotnet build ./src/sales-management-api.sln --configuration Release
-          --no-restore
-      - name: Run unit tests with report
-        run: dotnet test ./src/Test/Test.csproj --configuration Release --no-build
-          --logger "trx;LogFileName=TestResults.trx"
+
+      - name: List projects (for debug)
+        run: |
+          echo "Solutions:"
+          git ls-files '*.sln' || true
+          echo "Projects:"
+          git ls-files '*.csproj' || find . -name '*.csproj' || true
+
+      - name: Run tests for each test project
+        shell: bash
+        run: |
+          set -euo pipefail
+          # collect csproj files
+          mapfile -t projects < <(git ls-files '*.csproj' || find . -name '*.csproj' 2>/dev/null || true)
+          if [ ${#projects[@]} -eq 0 ]; then
+            echo "No .csproj files found."
+            exit 0
+          fi
+
+          echo "Found ${#projects[@]} project(s). Checking for test projects..."
+          for proj in "${projects[@]}"; do
+            # heuristics: name contains test/tests OR project references testing packages or test SDK
+            name_ok=$(basename "$proj" | grep -Ei 'test|tests' || true)
+            pkg_ok=$(grep -Ei '<PackageReference[^>]+(xunit|nunit|mstest|Microsoft.NET.Test.Sdk)' "$proj" 2>/dev/null || true)
+
+            if [ -n "$name_ok" ] || [ -n "$pkg_ok" ]; then
+              echo "Running tests in: $proj"
+              # Use a unique trx file name per project
+              trx_name="$(basename "$proj" .csproj).trx"
+              dotnet test "$proj" --configuration Release --logger "trx;LogFileName=$trx_name"
+            else
+              echo "Skipping (not detected as test project): $proj"
+            fi
+          done
+
       - name: Upload test results
         uses: actions/upload-artifact@v4
         with:
           name: TestResults
-          path: ./src/Test/TestResults/TestResults.trx
+          path: '**/*.trx'
