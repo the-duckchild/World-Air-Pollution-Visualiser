@@ -21,14 +21,14 @@ public class AirQualityDataControllerTests
     public async Task AirQualityByUID_ReturnsOkResult_WithValidUID()
     {
         // Arrange
-        int testUID = 123;
+        string testUID = "123";
         var expectedData = new AirQualityDataSetDto
         {
             Status = "ok",
             Data = new Data
             {
                 Aqi = 42,
-                Idx = testUID,
+                Idx = 123,
                 City = new City
                 {
                     Name = "London",
@@ -85,7 +85,7 @@ public class AirQualityDataControllerTests
     public async Task AirQualityByUID_CallsRepositoryWithCorrectUID()
     {
         // Arrange
-        int testUID = 456;
+        string testUID = "456";
         var expectedData = new AirQualityDataSetDto();
 
         _mockRepository.Setup(repo => repo.GetDataByUID(testUID)).ReturnsAsync(expectedData);

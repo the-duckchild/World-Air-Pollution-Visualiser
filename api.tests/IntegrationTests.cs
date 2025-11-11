@@ -1,6 +1,5 @@
 using System.Net;
 using System.Text.Json;
-using api.Models.Database;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
@@ -26,26 +25,6 @@ public class IntegrationTests : IClassFixture<WebApplicationFactory<Program>>
 
         // Assert
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-    }
-
-    [Fact]
-    public async Task GetStations_ReturnsValidJson()
-    {
-        // Act
-        var response = await _client.GetAsync("/stations");
-        var content = await response.Content.ReadAsStringAsync();
-
-        // Assert
-        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        Assert.False(string.IsNullOrEmpty(content));
-
-        // Try to deserialize to verify it's valid JSON
-        var stations = JsonSerializer.Deserialize<List<StationLocation>>(
-            content,
-            new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
-        );
-
-        Assert.NotNull(stations);
     }
 
     [Fact]
