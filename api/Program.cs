@@ -1,4 +1,5 @@
 using api.Repositories;
+using api.Middleware;
 using dotenv.net;
 
 var AllowSpecificOrigins = "_AllowSpecificOrigins";
@@ -47,6 +48,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseRateLimiting();
 
 app.UseCors(AllowSpecificOrigins);
 
