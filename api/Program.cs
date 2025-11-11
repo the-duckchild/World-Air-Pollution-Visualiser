@@ -34,7 +34,6 @@ builder.Services.AddCors(options =>
                 policy
                     .WithOrigins("http://localhost:5173")
                     .AllowAnyMethod()
-                    .AllowCredentials()
                     .AllowAnyHeader();
             }
         );
@@ -52,7 +51,6 @@ builder.Services.AddCors(options =>
                         "https://air-pollution-visualiser-191519804984.europe-west1.run.app"
                     )
                     .AllowAnyMethod()
-                    .AllowCredentials()
                     .AllowAnyHeader();
             }
         );
