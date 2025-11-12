@@ -4,7 +4,7 @@
 
 ## Description
 
-Air Pollution Visualiser is a full-stack web application for exploring and visualising air quality data interactively. It features a React-based frontend with 3D AQI visualisation and a .NET API backend, allowing users to view, search, and analyse air pollution data from various stations.
+World Air Pollution Visualiser is a full-stack web application for exploring and visualising air quality data interactively. It features a React-based frontend with 3D AQI visualisation and a .NET API backend, allowing users to view, search, and analyse air pollution data from various stations.
 
 ## Table of Contents
 
