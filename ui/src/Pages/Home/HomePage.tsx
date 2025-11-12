@@ -53,7 +53,7 @@ const HomePage = () => {
   };
     
   return (
-    <div className="flex flex-col h-screen">
+    <div className="flex flex-col h-screen overflow-y-auto">
       <div className="flex w-screen mb-0 md:mb-4 portrait:flex-col portrait:items-center ">
         <img
           src="High-Resolution-Color-Logo-on-Transparent-Background_edited.png"
@@ -69,7 +69,7 @@ const HomePage = () => {
         </div>
       </div>
 
-      <div className="flex-1 flex flex-col min-w-screen items-center space-y-6 overflow-y-auto">
+      <div className="flex-1 flex flex-col min-w-screen items-center space-y-6 ">
         {/* Container for both AqiVisualiser and MapComponent */}
         <div className="flex justify-center">
           {/* AqiVisualiser - hidden when map is visible */}
