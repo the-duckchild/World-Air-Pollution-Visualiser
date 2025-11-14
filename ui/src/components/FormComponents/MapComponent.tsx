@@ -36,7 +36,7 @@ export function MapComponent({
     if (hasValidCoordinates) {
       setPosition([initialCoordinates.Latitude, initialCoordinates.Longitude]);
     }
-  }, [initialCoordinates, hasValidCoordinates]);
+  }, [initialCoordinates]);
 
   // Auto-submit when map position changes
   const handleMapPositionChange = (pos: LatLng) => {
