@@ -14,4 +14,4 @@
 [[headers]]
   for = "/*"
   [headers.values]
-    Permissions-Policy = "geolocation=()"
+    Permissions-Policy = "geolocation=(self)"
