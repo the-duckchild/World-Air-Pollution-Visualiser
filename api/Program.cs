@@ -26,6 +26,10 @@ var port = builder.Environment.IsDevelopment()
 logger.LogInformation($"Configuring to listen on port: {port}");
 builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
 
+// Get PORT from environment variable (Cloud Run requirement)
+var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
+builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
+
 builder.Services.AddCors(options =>
 {
     if (builder.Environment.IsDevelopment())
