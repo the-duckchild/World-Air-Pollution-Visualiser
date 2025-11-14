@@ -28,7 +28,7 @@ export function MapComponent({
   
   const [position, setPosition] = useState<[number, number]>([
     hasValidCoordinates ? initialCoordinates.Latitude : 51.5074, 
-    hasValidCoordinates ? initialCoordinates.Longitude : 0.1272,
+    hasValidCoordinates ? initialCoordinates.Longitude : -0.1278,
   ]);
 
   // Update position when initialCoordinates changes
@@ -75,7 +75,7 @@ export function MapComponent({
           <MapContainer
             center={{ 
               lat: hasValidCoordinates ? initialCoordinates.Latitude : 51.5074, 
-              lng: hasValidCoordinates ? initialCoordinates.Longitude : 0.1272 
+              lng: hasValidCoordinates ? initialCoordinates.Longitude : -0.1278 
             }}
             maxBounds={[
               [-90, -180],
