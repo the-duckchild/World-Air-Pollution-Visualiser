@@ -147,7 +147,7 @@ export function AqiVisualiser({
               alignItems: "center",
               justifyContent: "center",
               backgroundColor: "rgba(248, 249, 250, 0.95)",
-              zIndex: 1000,
+              zIndex: 900,
               backdropFilter: "blur(2px)",
             }}>
             <div
