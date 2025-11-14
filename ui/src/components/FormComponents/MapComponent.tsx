@@ -27,8 +27,8 @@ export function MapComponent({
     (initialCoordinates.Latitude !== 0 || initialCoordinates.Longitude !== 0);
   
   const [position, setPosition] = useState<[number, number]>([
-    hasValidCoordinates ? initialCoordinates.Latitude : 16.766587,
-    hasValidCoordinates ? initialCoordinates.Longitude : -3.0025615,
+    hasValidCoordinates ? initialCoordinates.Latitude : 51.5074, 
+    hasValidCoordinates ? initialCoordinates.Longitude : 0.1272,
   ]);
 
   // Update position when initialCoordinates changes
