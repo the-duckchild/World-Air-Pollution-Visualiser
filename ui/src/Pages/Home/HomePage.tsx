@@ -77,6 +77,12 @@ const HomePage = () => {
   }, []);
 
   const requestLocationPermission = () => {
+    if (!navigator.geolocation) {
+      console.log('Geolocation no longer available, using London as fallback');
+      setCurrentLongLat(LONDON_COORDS);
+      setShowLocationDialog(false);
+      return;
+    }
     navigator.geolocation.getCurrentPosition(
       (position) => {
         // Successfully got user's location
@@ -121,19 +127,17 @@ const HomePage = () => {
       >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Enable Location Services</DialogTitle>
+            <DialogTitle>Choose Your Location</DialogTitle>
             <DialogDescription>
-              We'd like to use your location to show you air quality data for your area.
-              This helps us provide you with the most relevant and accurate information.
-              You can always change the location manually later.
+              Can we use your current location to find local data? If not you can select a location using the map.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
             <Button variant="outline" onClick={declineLocationPermission}>
-              No, use default location
+              No, use default
             </Button>
-            <Button onClick={requestLocationPermission}>
-              Allow location access
+            <Button className="bg-blue-600 hover:bg-blue-700" onClick={requestLocationPermission}>
+              Use my location
             </Button>
           </DialogFooter>
         </DialogContent>

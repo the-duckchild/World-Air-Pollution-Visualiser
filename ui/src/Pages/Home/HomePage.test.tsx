@@ -65,18 +65,18 @@ describe('HomePage', () => {
     
     // Should show the location dialog
     expect(screen.getByRole('dialog')).toBeInTheDocument()
-    expect(screen.getByText(/Enable Location Services/i)).toBeInTheDocument()
-    expect(screen.getByText(/We'd like to use your location/i)).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: /Allow location access/i })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: /No, use default location/i })).toBeInTheDocument()
+    expect(screen.getByText(/Choose Your Location/i)).toBeInTheDocument()
+    expect(screen.getByText(/Can we use your current location/i)).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /Use my location/i })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /No, use default/i })).toBeInTheDocument()
   })
 
   it('uses London coordinates when user declines location access', async () => {
     const user = userEvent.setup()
     render(<HomePage />)
     
-    // Click "No, use default location" button
-    const declineButton = screen.getByRole('button', { name: /No, use default location/i })
+    // Click "No, use default" button
+    const declineButton = screen.getByRole('button', { name: /No, use default/i })
     await user.click(declineButton)
     
     // Should show London coordinates (51.5074, -0.1278)
@@ -98,8 +98,8 @@ describe('HomePage', () => {
     
     render(<HomePage />)
     
-    // Click "Allow location access" button
-    const allowButton = screen.getByRole('button', { name: /Allow location access/i })
+    // Click "Use my location" button
+    const allowButton = screen.getByRole('button', { name: /Use my location/i })
     await user.click(allowButton)
     
     // Should show user's actual coordinates
@@ -112,7 +112,7 @@ describe('HomePage', () => {
     render(<HomePage />)
     
     // Dismiss the dialog first
-    const declineButton = screen.getByRole('button', { name: /No, use default location/i })
+    const declineButton = screen.getByRole('button', { name: /No, use default/i })
     await user.click(declineButton)
     
     // Check if all main components are rendered
@@ -127,7 +127,7 @@ describe('HomePage', () => {
     render(<HomePage />)
     
     // Dismiss the dialog
-    const declineButton = screen.getByRole('button', { name: /No, use default location/i })
+    const declineButton = screen.getByRole('button', { name: /No, use default/i })
     await user.click(declineButton)
     
     // Check if London coordinates are used (51.5074, -0.1278)
@@ -140,7 +140,7 @@ describe('HomePage', () => {
     render(<HomePage />)
     
     // Dismiss the dialog first
-    const declineButton = screen.getByRole('button', { name: /No, use default location/i })
+    const declineButton = screen.getByRole('button', { name: /No, use default/i })
     await user.click(declineButton)
     
     // Initially shows London coordinates
@@ -160,7 +160,7 @@ describe('HomePage', () => {
     render(<HomePage />)
     
     // Dismiss the dialog first
-    const declineButton = screen.getByRole('button', { name: /No, use default location/i })
+    const declineButton = screen.getByRole('button', { name: /No, use default/i })
     await user.click(declineButton)
     
     // Main container should have correct classes - updated to match current implementation
@@ -173,7 +173,7 @@ describe('HomePage', () => {
     render(<HomePage />)
     
     // Dismiss the dialog first
-    const declineButton = screen.getByRole('button', { name: /No, use default location/i })
+    const declineButton = screen.getByRole('button', { name: /No, use default/i })
     await user.click(declineButton)
     
     // The AQI figures display should be in a container with max-w-6xl
@@ -186,7 +186,7 @@ describe('HomePage', () => {
     render(<HomePage />)
     
     // Dismiss the dialog first
-    const declineButton = screen.getByRole('button', { name: /No, use default location/i })
+    const declineButton = screen.getByRole('button', { name: /No, use default/i })
     await user.click(declineButton)
     
     // Initially, aqiForClosestStation should be null
@@ -200,7 +200,7 @@ describe('HomePage', () => {
     render(<HomePage />)
     
     // Dismiss the dialog first
-    const declineButton = screen.getByRole('button', { name: /No, use default location/i })
+    const declineButton = screen.getByRole('button', { name: /No, use default/i })
     await user.click(declineButton)
     
     // Check if AqiVisualiser is rendered (it contains the Canvas internally)
@@ -212,7 +212,7 @@ describe('HomePage', () => {
     render(<HomePage />)
     
     // Dismiss the dialog first
-    const declineButton = screen.getByRole('button', { name: /No, use default location/i })
+    const declineButton = screen.getByRole('button', { name: /No, use default/i })
     await user.click(declineButton)
     
     // TickerTape should be rendered (positioning tested in TickerTape.test.tsx)
@@ -224,7 +224,7 @@ describe('HomePage', () => {
     render(<HomePage />)
     
     // Dismiss the dialog first
-    const declineButton = screen.getByRole('button', { name: /No, use default location/i })
+    const declineButton = screen.getByRole('button', { name: /No, use default/i })
     await user.click(declineButton)
     
     // Test that coordinate state is properly managed
@@ -244,7 +244,7 @@ describe('HomePage', () => {
     render(<HomePage />)
     
     // Dismiss the dialog first
-    const declineButton = screen.getByRole('button', { name: /No, use default location/i })
+    const declineButton = screen.getByRole('button', { name: /No, use default/i })
     await user.click(declineButton)
     
     // Verify that correct props are passed to AqiFiguresDisplay (London coordinates)
