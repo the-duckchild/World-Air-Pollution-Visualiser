@@ -18,7 +18,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "../../components/ui-components/dialog";
-import { Button } from "../../components/ui-components/button";
 import { LONDON_COORDS } from "../../utils/constants";
 import "leaflet/dist/leaflet.css";
 import "../.././styles/globals.css";
