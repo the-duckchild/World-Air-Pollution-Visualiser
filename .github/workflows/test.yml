@@ -28,10 +28,6 @@ jobs:
           rm -rf node_modules package-lock.json
           npm install
 
-      - name: Install dependencies (ui)
-        working-directory: ui
-        run: npm install
-
       - name: Run tests (ui)
         working-directory: ui
         run: npm test
