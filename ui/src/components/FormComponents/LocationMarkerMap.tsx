@@ -24,11 +24,9 @@ export function LocationMarkerMap( locationMarkerProps: LocationMarkerProps) {
   })
   
 
-  return locationMarkerProps.position === null ? null : (
-
+  return (
     <Marker position={locationMarkerProps.position}>
       <Tooltip direction="top" offset={[-13, -20]} opacity={1} permanent>Select Air Quality Location</Tooltip>
     </Marker>
-         
   )
 }

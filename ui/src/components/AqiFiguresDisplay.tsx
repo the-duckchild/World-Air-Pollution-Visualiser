@@ -5,9 +5,9 @@ import "./AqiFiguresDisplay.css";
 import { type LongLat } from "../components/FormComponents/FindDataForNearestStationForm";
 import { getCurrentTimeForLocation } from "../utils/timeUtils";
 import { PARTICLE_CONFIGS } from './AqiVisualiser/ParticleConfigs';
-import { Card } from './ui components/card';
-import { Switch } from './ui components/switch';
-import { Label } from './ui components/label';
+import { Card } from './ui-components/card';
+import { Switch } from './ui-components/switch';
+import { Label } from './ui-components/label';
 
 interface AqiFiguresDisplayProps {
   currentLongLat: LongLat;

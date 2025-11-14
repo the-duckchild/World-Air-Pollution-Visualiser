@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 import { TickerTape } from "../.././components/TickerTape";
 import AqiFiguresDisplay from "../.././components/AqiFiguresDisplay";
@@ -13,6 +13,12 @@ import { useForm } from "react-hook-form";
 import "leaflet/dist/leaflet.css";
 import "../.././styles/globals.css";
 import "../.././styles/app.css";
+
+// London coordinates as fallback
+const LONDON_COORDS: LongLat = {
+  Latitude: 51.5074,
+  Longitude: -0.1278
+};
 
 const HomePage = () => {
   const [enabledSystems, setEnabledSystems] = useState<
@@ -47,6 +53,35 @@ const HomePage = () => {
   const { setValue } = useForm<LongLat>({
     defaultValues: { Longitude: 0, Latitude: 0 },
   });
+
+  // Get user's location on component mount
+  useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          // Successfully got user's location
+          const coords: LongLat = {
+            Latitude: position.coords.latitude,
+            Longitude: position.coords.longitude
+          };
+          setCurrentLongLat(coords);
+        },
+        (error) => {
+          // Failed to get location, use London as fallback
+          console.log('Geolocation error, using London as fallback:', error.message);
+          setCurrentLongLat(LONDON_COORDS);
+        },
+        {
+          timeout: 5000,
+          maximumAge: 0
+        }
+      );
+    } else {
+      // Geolocation not supported, use London as fallback
+      console.log('Geolocation not supported, using London as fallback');
+      setCurrentLongLat(LONDON_COORDS);
+    }
+  }, []);
 
   const toggleMap = () => {
     setMapVisible(!mapVisible);
@@ -88,6 +123,7 @@ const HomePage = () => {
             mapVisible={mapVisible}
             onCoordinatesChange={setCurrentLongLat}
             setValue={setValue}
+            initialCoordinates={currentLongLat}
           />
         </div>
 
