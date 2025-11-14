@@ -26,7 +26,6 @@ const createMockData = (aqi: number, name: string, geo: [number, number], domine
       so2: null
     },
     time: { saveChanges: null, iso: '2024-01-01T12:00:00Z', tz: '+00:00', v: 1704110400 },
-    forecast: { daily: { o3: [], pm10: [], pm25: [] } },
   }
 })
 
