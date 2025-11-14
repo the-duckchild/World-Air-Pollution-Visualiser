@@ -110,7 +110,6 @@ const HomePage = () => {
   const toggleMap = () => {
     setMapVisible(!mapVisible);
   };
-    
   return (
     <div className="flex flex-col h-screen overflow-y-auto">
       {/* Location Permission Dialog */}
