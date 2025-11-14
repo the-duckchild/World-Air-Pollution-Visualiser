@@ -66,19 +66,37 @@ const HomePage = () => {
     }
   }, []);
 
-  const requestLocationPermission = () => {
+  // Helper function to get user's current location
+  const getUserLocation = (
+    onSuccess: (coords: LongLat) => void,
+    onError: (error: GeolocationPositionError) => void
+  ) => {
     if (!navigator.geolocation) {
       console.log('Geolocation not available');
-      setShowLocationDialog(false);
-      return;
+      return false;
     }
+
     navigator.geolocation.getCurrentPosition(
       (position) => {
-        // Successfully got user's location
         const coords: LongLat = {
           Latitude: position.coords.latitude,
           Longitude: position.coords.longitude
         };
+        onSuccess(coords);
+      },
+      onError,
+      {
+        timeout: 5000,
+        maximumAge: 0
+      }
+    );
+    return true;
+  };
+
+  const requestLocationPermission = () => {
+    const success = getUserLocation(
+      (coords) => {
+        // Successfully got user's location
         setCurrentLongLat(coords);
         setShowLocationDialog(false);
       },
@@ -86,12 +104,12 @@ const HomePage = () => {
         // Failed to get location, keep London as default
         console.log('Geolocation error, keeping London as default:', error.message);
         setShowLocationDialog(false);
-      },
-      {
-        timeout: 5000,
-        maximumAge: 0
       }
     );
+
+    if (!success) {
+      setShowLocationDialog(false);
+    }
   };
 
   const declineLocationPermission = () => {
