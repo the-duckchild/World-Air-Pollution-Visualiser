@@ -58,14 +58,62 @@ vi.mock('../../styles/app.css', () => ({}))
 describe('HomePage', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    // Reset geolocation mock to do nothing (keeps initial 0,0)
-    mockGeolocation.getCurrentPosition.mockImplementation(() => {
-      // Don't call success or error - component stays at initial (0, 0)
-    })
   })
 
-  it('renders all main components', () => {
+  it('shows location permission dialog on mount when geolocation is available', () => {
     render(<HomePage />)
+    
+    // Should show the location dialog
+    expect(screen.getByRole('dialog')).toBeInTheDocument()
+    expect(screen.getByText(/Choose Your Location/i)).toBeInTheDocument()
+    expect(screen.getByText(/Can we use your current location/i)).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /Use my location/i })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /No, use default/i })).toBeInTheDocument()
+  })
+
+  it('uses London coordinates when user declines location access', async () => {
+    const user = userEvent.setup()
+    render(<HomePage />)
+    
+    // Click "No, use default" button
+    const declineButton = screen.getByRole('button', { name: /No, use default/i })
+    await user.click(declineButton)
+    
+    // Should show London coordinates (51.5074, -0.1278)
+    expect(screen.getByText(/Current: 51.5074, -0.1278/)).toBeInTheDocument()
+    expect(screen.getByText(/Lat: 51.5074, Lng: -0.1278/)).toBeInTheDocument()
+  })
+
+  it('requests location when user allows access', async () => {
+    const user = userEvent.setup()
+    const mockPosition = {
+      coords: {
+        latitude: 40.7128,
+        longitude: -74.0060
+      }
+    }
+    mockGeolocation.getCurrentPosition.mockImplementation((success) => {
+      success(mockPosition as GeolocationPosition)
+    })
+    
+    render(<HomePage />)
+    
+    // Click "Use my location" button
+    const allowButton = screen.getByRole('button', { name: /Use my location/i })
+    await user.click(allowButton)
+    
+    // Should show user's actual coordinates
+    expect(screen.getByText(/Current: 40.7128, -74.006/)).toBeInTheDocument()
+    expect(screen.getByText(/Lat: 40.7128, Lng: -74.006/)).toBeInTheDocument()
+  })
+
+  it('renders all main components after dismissing dialog', async () => {
+    const user = userEvent.setup()
+    render(<HomePage />)
+    
+    // Dismiss the dialog first
+    const declineButton = screen.getByRole('button', { name: /No, use default/i })
+    await user.click(declineButton)
     
     // Check if all main components are rendered
     expect(screen.getByTestId('ticker-tape')).toBeInTheDocument()
@@ -74,20 +122,29 @@ describe('HomePage', () => {
     expect(screen.getByTestId('location-form')).toBeInTheDocument()
   })
 
-  it('initializes with default coordinates (0, 0)', () => {
+  it('initializes with London coordinates when user declines', async () => {
+    const user = userEvent.setup()
     render(<HomePage />)
     
-    // Check if default coordinates are used (0, 0)
-    expect(screen.getByText(/Lat: 0, Lng: 0/)).toBeInTheDocument()
-    expect(screen.getByText(/Current: 0, 0/)).toBeInTheDocument()
+    // Dismiss the dialog
+    const declineButton = screen.getByRole('button', { name: /No, use default/i })
+    await user.click(declineButton)
+    
+    // Check if London coordinates are used (51.5074, -0.1278)
+    expect(screen.getByText(/Lat: 51.5074, Lng: -0.1278/)).toBeInTheDocument()
+    expect(screen.getByText(/Current: 51.5074, -0.1278/)).toBeInTheDocument()
   })
 
   it('updates coordinates when location form triggers change', async () => {
     const user = userEvent.setup()
     render(<HomePage />)
     
-    // Initially shows default coordinates
-    expect(screen.getByText(/Current: 0, 0/)).toBeInTheDocument()
+    // Dismiss the dialog first
+    const declineButton = screen.getByRole('button', { name: /No, use default/i })
+    await user.click(declineButton)
+    
+    // Initially shows London coordinates
+    expect(screen.getByText(/Current: 51.5074, -0.1278/)).toBeInTheDocument()
     
     // Click button to change location (to New York coordinates)
     const changeLocationButton = screen.getByRole('button', { name: /change location/i })
@@ -98,24 +155,39 @@ describe('HomePage', () => {
     expect(screen.getByText(/Lat: 40.7128, Lng: -74.006/)).toBeInTheDocument()
   })
 
-  it('has correct layout structure', () => {
+  it('has correct layout structure', async () => {
+    const user = userEvent.setup()
     render(<HomePage />)
+    
+    // Dismiss the dialog first
+    const declineButton = screen.getByRole('button', { name: /No, use default/i })
+    await user.click(declineButton)
     
     // Main container should have correct classes - updated to match current implementation
     const mainContainer = document.querySelector('.flex-1')
     expect(mainContainer).toHaveClass('flex-1', 'flex', 'flex-col', 'min-w-screen', 'items-center', 'space-y-6')
   })
 
-  it('positions AQI figures display in a container with max width', () => {
+  it('positions AQI figures display in a container with max width', async () => {
+    const user = userEvent.setup()
     render(<HomePage />)
+    
+    // Dismiss the dialog first
+    const declineButton = screen.getByRole('button', { name: /No, use default/i })
+    await user.click(declineButton)
     
     // The AQI figures display should be in a container with max-w-6xl
     const aqiFiguresContainer = screen.getByTestId('aqi-figures-display').parentElement
     expect(aqiFiguresContainer).toHaveClass('w-full', 'max-w-6xl', 'px-4')
   })
 
-  it('manages AQI data state correctly', () => {
+  it('manages AQI data state correctly', async () => {
+    const user = userEvent.setup()
     render(<HomePage />)
+    
+    // Dismiss the dialog first
+    const declineButton = screen.getByRole('button', { name: /No, use default/i })
+    await user.click(declineButton)
     
     // Initially, aqiForClosestStation should be null
     // This is tested indirectly through the AqiFiguresDisplay mock
@@ -123,15 +195,25 @@ describe('HomePage', () => {
     expect(screen.getByTestId('aqi-figures-display')).toBeInTheDocument()
   })
 
-  it('renders 3D visualization component', () => {
+  it('renders 3D visualization component', async () => {
+    const user = userEvent.setup()
     render(<HomePage />)
+    
+    // Dismiss the dialog first
+    const declineButton = screen.getByRole('button', { name: /No, use default/i })
+    await user.click(declineButton)
     
     // Check if AqiVisualiser is rendered (it contains the Canvas internally)
     expect(screen.getByTestId('aqi-visualiser')).toBeInTheDocument()
   })
 
-  it('places ticker tape at the bottom', () => {
+  it('places ticker tape at the bottom', async () => {
+    const user = userEvent.setup()
     render(<HomePage />)
+    
+    // Dismiss the dialog first
+    const declineButton = screen.getByRole('button', { name: /No, use default/i })
+    await user.click(declineButton)
     
     // TickerTape should be rendered (positioning tested in TickerTape.test.tsx)
     expect(screen.getByTestId('ticker-tape')).toBeInTheDocument()
@@ -141,25 +223,58 @@ describe('HomePage', () => {
     const user = userEvent.setup()
     render(<HomePage />)
     
+    // Dismiss the dialog first
+    const declineButton = screen.getByRole('button', { name: /No, use default/i })
+    await user.click(declineButton)
+    
     // Test that coordinate state is properly managed
-    const initialText = screen.getByText(/Current: 0, 0/)
+    const initialText = screen.getByText(/Current: 51.5074, -0.1278/)
     expect(initialText).toBeInTheDocument()
     
     // Trigger coordinate change
     await user.click(screen.getByRole('button', { name: /change location/i }))
     
     // Verify state was updated
-    expect(screen.queryByText(/Current: 0, 0/)).not.toBeInTheDocument()
+    expect(screen.queryByText(/Current: 51.5074, -0.1278/)).not.toBeInTheDocument()
     expect(screen.getByText(/Current: 40.7128, -74.006/)).toBeInTheDocument()
   })
 
-  it('passes correct props to child components', () => {
+  it('passes correct props to child components', async () => {
+    const user = userEvent.setup()
     render(<HomePage />)
     
-    // Verify that correct props are passed to AqiFiguresDisplay
-    expect(screen.getByText(/Lat: 0, Lng: 0/)).toBeInTheDocument()
+    // Dismiss the dialog first
+    const declineButton = screen.getByRole('button', { name: /No, use default/i })
+    await user.click(declineButton)
+    
+    // Verify that correct props are passed to AqiFiguresDisplay (London coordinates)
+    expect(screen.getByText(/Lat: 51.5074, Lng: -0.1278/)).toBeInTheDocument()
     
     // Verify that location form receives current coordinates
-    expect(screen.getByText(/Current: 0, 0/)).toBeInTheDocument()
+    expect(screen.getByText(/Current: 51.5074, -0.1278/)).toBeInTheDocument()
+  })
+
+  it('uses London coordinates when geolocation is not supported', () => {
+    // Temporarily remove geolocation support
+    const originalGeolocation = global.navigator.geolocation
+    Object.defineProperty(global.navigator, 'geolocation', {
+      value: undefined,
+      writable: true,
+    })
+
+    render(<HomePage />)
+    
+    // Should not show dialog when geolocation is not supported
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    
+    // Should use London coordinates
+    expect(screen.getByText(/Current: 51.5074, -0.1278/)).toBeInTheDocument()
+    expect(screen.getByText(/Lat: 51.5074, Lng: -0.1278/)).toBeInTheDocument()
+
+    // Restore geolocation
+    Object.defineProperty(global.navigator, 'geolocation', {
+      value: originalGeolocation,
+      writable: true,
+    })
   })
 })
