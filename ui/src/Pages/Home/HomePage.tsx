@@ -136,7 +136,7 @@ const HomePage = () => {
             <Button variant="outline" onClick={declineLocationPermission}>
               No, use default
             </Button>
-            <Button className="bg-blue-600 hover:bg-blue-700" onClick={requestLocationPermission}>
+            <Button variant="ghost" className="bg-blue-600 hover:bg-blue-700" onClick={requestLocationPermission}>
               Use my location
             </Button>
           </DialogFooter>
