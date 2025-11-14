@@ -84,7 +84,7 @@ export function MapComponent({
             ]}
             maxBoundsViscosity={1}
             minZoom={2.5}
-            zoom={hasValidCoordinates ? 7: 1}
+            zoom={hasValidCoordinates ? 7 : 1}
             scrollWheelZoom={true}
             style={{ width: "100%", height: "100%", borderRadius: "25px" }}
           >
