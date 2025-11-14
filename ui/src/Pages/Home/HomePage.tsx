@@ -129,7 +129,7 @@ const HomePage = () => {
           <DialogHeader>
             <DialogTitle>Choose Your Location</DialogTitle>
             <DialogDescription>
-              Can we use your current location to find local data? If not you can select a location using the map.
+              Can we use your current location to find local data? If not, you can select a location using the map.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
