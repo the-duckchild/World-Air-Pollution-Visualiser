@@ -88,23 +88,23 @@ export function MapComponent({
             scrollWheelZoom={true}
             style={{ width: "100%", height: "100%", borderRadius: "25px" }}
           >
-            <TileLayer
-              id="tileLayer"
-              noWrap={true}
-              bounds={[
-                [-90, -180],
-                [90, 180],
-              ]}
-              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-            />
-            <LocationMarkerMap
-              position={latLng(position[0], position[1])}
-              setPosition={handleMapPositionChange}
-              setValue={setValue}
-            />
-          </MapContainer>
-        </div>
+        <TileLayer
+          id="tileLayer"
+          noWrap={true}
+          bounds={[
+            [-90, -180],
+            [90, 180],
+          ]}
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        />
+        <LocationMarkerMap
+          position={latLng(position[0], position[1])}
+          setPosition={handleMapPositionChange}
+          setValue={setValue}
+        />
+      </MapContainer>
+    </div>
       )}
     </>
   );

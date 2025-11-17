@@ -37,6 +37,10 @@ export function AqiVisualiser({
   >([0, 0, 65]);
 
   const [isLoading, setIsLoading] = useState(true);
+   const [terrainConfig, setTerrainConfig] = useState({
+    planeSize: 800,
+    grassInstances: 750000,
+  });
 
   // Hide loading after components are initialized
   useEffect(() => {
@@ -52,9 +56,12 @@ export function AqiVisualiser({
       const windowWidth = window.innerWidth;
       const windowHeight = window.innerHeight;
       const isPortrait = windowHeight > windowWidth;
-  
 
       let zoomDistance = 60; 
+      let planeSize = 800;
+      let grassInstances = 750000;
+
+ 
       if (isPortrait) {
         BOUNDS = { x: 40, y: 40, z: 40 };
         ROTATION = {x: 0, y:0, z:0};
@@ -62,8 +69,12 @@ export function AqiVisualiser({
 
       if (windowWidth < 600) {
         zoomDistance = 125;
+        planeSize = 400;
+        grassInstances = 200000;
       } else if (windowWidth < 800) {
         zoomDistance = 100;
+        planeSize = 500;
+        grassInstances = 40000
       } 
       else if (windowWidth < 1000) {
         zoomDistance = 110;
@@ -75,14 +86,13 @@ export function AqiVisualiser({
         zoomDistance = 55; 
       }
       
-
       setCameraPosition([0, 0, zoomDistance]);
-      
+      setTerrainConfig({ planeSize, grassInstances });
     };
 
     updateCameraPosition();
     window.addEventListener("resize", updateCameraPosition);
-
+            
     return () => {
       window.removeEventListener("resize", updateCameraPosition);
     };
@@ -224,9 +234,9 @@ export function AqiVisualiser({
 
             <group position={[0, -25.1, 0]}>
               <Grass
-                instances={750000}
-                width={800}
-                depth={800}
+                instances={terrainConfig.grassInstances}
+                width={terrainConfig.planeSize}
+                depth={terrainConfig.planeSize}
                 windStrength={0.8}
               />
             </group>
