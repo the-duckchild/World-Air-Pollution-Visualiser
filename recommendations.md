@@ -145,9 +145,9 @@ This section maps findings to the code review checklist in `docs/engineering/cod
 
 - 🟡 **Recommended:** Large component (AqiFiguresDisplay.tsx, 300+ lines) with multiple responsibilities
 - 🟡 **Recommended:** No logging in controllers or repositories for debugging
-- � **Recommended:** `ApiClient.tsx` logs the resolved API base URL to the browser console on every load, leaking configuration details in production
+- 🟡 **Recommended:** `ApiClient.tsx` logs the resolved API base URL to the browser console on every load, leaking configuration details in production
 - 🟡 **Recommended:** TypeScript DTOs (e.g., `Time`) diverge from WAQI payloads (`saveChanges` property does not exist, `iso` should be optional), increasing runtime mismatch risk
-- �🔵 **Nit:** Inconsistent naming (mix of PascalCase and camelCase in DTOs)
+- 🔵 **Nit:** Inconsistent naming (mix of PascalCase and camelCase in DTOs)
 - 🔵 **Nit:** Commented-out code in App.tsx and Program.cs
 - 🔵 **Nit:** Magic numbers for AQI thresholds
 - 🔵 **Nit:** Unused using statements and variables
