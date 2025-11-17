@@ -38,25 +38,25 @@ This codebase demonstrates solid engineering practices with strong security cons
 
 This review follows the principles outlined in `docs/engineering/code-review-guidelines.md`:
 
-**✅ Be Kind and Constructive**
+### ✅ Be Kind and Constructive
 
 - Findings focus on improving code quality, not criticizing authors
 - Each issue includes clear rationale tied to project standards
 - Positive observations highlighted throughout
 
-**✅ Ask Questions**
+### ✅ Ask Questions
 
 - Findings formatted as observations with explanations
 - References to authoritative documentation provided
 - Context given for why changes are recommended
 
-**✅ Offer Alternatives**
+### ✅ Offer Alternatives
 
 - Every blocking/recommended issue includes concrete fix examples
 - Code snippets demonstrate the recommended approach
 - Multiple solution paths suggested where applicable
 
-**✅ Automate**
+### ✅ Automate
 
 - Several issues (nits) could be caught by linters/formatters
 - Recommendations include tooling suggestions (ESLint, Zod, etc.)
@@ -87,10 +87,11 @@ This section maps findings to the code review checklist in `docs/engineering/cod
 **Issues Found:**
 
 - 🔴 **Blocking:** Repository exception handling doesn't properly handle external API failures, null responses, or HTTP errors
+- 🔴 **Blocking:** Repository returns HTTP 200 even when the upstream WAQI API reports `status: "error"`, so client code treats failures as success
 - 🔴 **Blocking:** Integration tests accept 500 errors as success, masking correctness issues
 - 🟡 **Recommended:** No explicit error handling for edge cases like empty UID lists or malformed coordinates
 
-**Details:** See "Backend Issues: Exception Handling in Repository Layer" and "Testing Issues: Integration Tests Don't Validate Responses"
+**Details:** See "Backend Issues: Exception Handling in Repository Layer", "Backend Issues: API Error Responses Are Treated as Success", and "Testing Issues: Integration Tests Don't Validate Responses"
 
 ### 3. Tests and Coverage ⚠️
 
@@ -99,7 +100,8 @@ This section maps findings to the code review checklist in `docs/engineering/cod
 - 🔴 **Blocking:** Integration tests only validate status codes, not response structure or data
 - 🟡 **Recommended:** Missing tests for critical error paths (rate limiting, security headers, external API failures)
 - 🟡 **Recommended:** No frontend tests for retry logic, error states, or loading states
-- 🔵 **Nit:** Generic test file name (`UnitTest1.cs`)
+- � **Recommended:** Integration tests hit the live WAQI API, creating flakiness, consuming quota, and violating the hermetic test guidance in `.github/copilot-instructions.md#quality-policy`
+- �🔵 **Nit:** Generic test file name (`UnitTest1.cs`)
 
 **Coverage Status:** Current tests exist but don't meet the 100% requirement for hot/error/security paths per `.github/copilot-instructions.md#quality-policy`.
 
@@ -143,7 +145,9 @@ This section maps findings to the code review checklist in `docs/engineering/cod
 
 - 🟡 **Recommended:** Large component (AqiFiguresDisplay.tsx, 300+ lines) with multiple responsibilities
 - 🟡 **Recommended:** No logging in controllers or repositories for debugging
-- 🔵 **Nit:** Inconsistent naming (mix of PascalCase and camelCase in DTOs)
+- � **Recommended:** `ApiClient.tsx` logs the resolved API base URL to the browser console on every load, leaking configuration details in production
+- 🟡 **Recommended:** TypeScript DTOs (e.g., `Time`) diverge from WAQI payloads (`saveChanges` property does not exist, `iso` should be optional), increasing runtime mismatch risk
+- �🔵 **Nit:** Inconsistent naming (mix of PascalCase and camelCase in DTOs)
 - 🔵 **Nit:** Commented-out code in App.tsx and Program.cs
 - 🔵 **Nit:** Magic numbers for AQI thresholds
 - 🔵 **Nit:** Unused using statements and variables
@@ -286,6 +290,63 @@ public async Task<AirQualityDataSetDto> GetDataByUID(string uid)
 
 ---
 
+### 🔴 Blocking: API Error Responses Are Treated as Success
+
+**File:** `api/Repositories/AirQualityDataRepository.cs`
+
+**Issue:** The repository forwards WAQI responses to callers even when the upstream API explicitly reports an error (`{"status":"error","data":"..."}`). The controller returns HTTP 200 with that payload, so clients treat failures as successful responses.
+
+**Why it matters:**
+
+- Violates correctness expectations; consumers have no reliable signal that the request failed.
+- Breaks the "fail fast" guidance in `.github/instructions/backend.instructions.md#backend-error-handling`.
+- Causes confusing UX (frontend renders "status: error" data instead of showing an error state).
+- Skips retry/alert logic because the failure never surfaces as an exception.
+
+**Current Code:**
+
+```csharp
+var parsedJsonResult = JObject.Parse(response.Content);
+AirQualityDataSetDto? uniqueAirQualityData =
+  parsedJsonResult.ToObject<AirQualityDataSetDto>();
+
+if (uniqueAirQualityData != null)
+{
+  return uniqueAirQualityData; // status may be "error"
+}
+```
+
+**Recommended Fix:**
+
+```csharp
+var payload = JObject.Parse(response.Content);
+var status = payload.Value<string>("status");
+
+if (!string.Equals(status, "ok", StringComparison.OrdinalIgnoreCase))
+{
+  var message = payload.Value<string>("data") ?? "Unknown error";
+  _logger.LogWarning("WAQI returned error status: {Status} - {Message}", status, message);
+  throw new ExternalServiceException($"WAQI error: {message}")
+  {
+    StatusCode = response.StatusCode
+  };
+}
+
+var airQualityData = payload.ToObject<AirQualityDataSetDto>()
+  ?? throw new DataNotFoundException("No data element returned");
+
+return airQualityData;
+```
+
+**Action Required:**
+
+- Enforce `status == "ok"` before returning data.
+- Map `status != ok` to typed exceptions so controllers can translate to 4xx/5xx responses.
+- Add unit tests covering `status: "error"` and `status: "nope"` scenarios.
+- Update frontend error handling to surface these failures (see "Frontend Issues: Missing Error States").
+
+---
+
 ### 🔴 Blocking: SecurityHeadersMiddleware Not Registered
 
 **File:** `api/Program.cs`
@@ -344,13 +405,13 @@ $"https://api.waqi.info/feed/@{uid}/?token={apiKey}"
 
 **Action Required:**
 
-1. Register in Program.cs:
+- Register in Program.cs:
 
 ```csharp
 builder.Services.AddScoped<IInputSanitizationService, InputSanitizationService>();
 ```
 
-2. Use in AirQualityDataController:
+- Use in AirQualityDataController:
 
 ```csharp
 public class AirQualityDataController : ControllerBase
@@ -440,6 +501,45 @@ public class City
 
 ---
 
+### 🟡 Recommended: DTO Numeric Types Do Not Match WAQI Payloads
+
+**File:** `api/Models/Dto/AirQualityDataSetDto.cs`
+
+**Issue:** DTO properties are typed as `int`, but the WAQI API frequently returns floating-point or string sentinel values (e.g., `"v": 12.3`, `"aqi": "-"`). `Newtonsoft.Json` will throw or silently truncate in these situations.
+
+**Evidence:**
+
+- Fields such as `Data.Aqi`, `Iaqi.Co.V`, `Iaqi.Pm25.V`, etc., are declared as `int`.
+- WAQI API examples (and live responses) show pollutant values with decimals and the AQI field occasionally set to `"-"` or `"N/A"` when data is unavailable.
+
+**Risks:**
+
+- Deserialization exceptions when the upstream API returns non-integer values.
+- Loss of precision when decimal pollutant concentrations are truncated to integers.
+- Frontend/backend mismatch: the TypeScript DTO uses `number` (supporting fractions) while the C# DTO forces integers.
+
+**Suggested Fix:**
+
+```csharp
+public class Data
+{
+  public double? Aqi { get; set; }
+  public int Idx { get; set; }
+  // ...
+}
+
+public class Co
+{
+  public double? V { get; set; }
+}
+```
+
+- Use `double?` (or `decimal?`) to capture fractional values and missing data.
+- For sentinel strings ("-", "N/A"), deserialize to `null` using a custom converter.
+- Add unit tests covering decimal values and missing AQI values to ensure robustness.
+
+---
+
 ### 🟡 Recommended: Missing Logging in Critical Paths
 
 **File:** `api/Controllers/AirQualityDataController.cs`
@@ -521,7 +621,51 @@ builder.Services.Configure<RateLimitOptions>(
 
 ---
 
-### 🔵 Nit: Typo in Property Name
+### � Recommended: Bulk UID Endpoint Should Tolerate Partial Failures
+
+**File:** `api/Controllers/AirQualityDataController.cs`
+
+**Issue:** `AirQualityByUIDs` calls the repository in parallel via `Task.WhenAll`. If any upstream call fails (timeout, 404, rate limit), the entire batch fails and clients receive an HTTP 500, even though some stations may have succeeded.
+
+**Impacts:**
+
+- Unnecessarily brittle API surface; a single failing station prevents useful data for the others.
+- Increases perceived downtime when the WAQI API rate-limits a subset of requests.
+- Violates resiliency guidance in `.github/instructions/backend.instructions.md#backend-architecture` (graceful degradation).
+
+**Suggested Improvements:**
+
+```csharp
+var results = new Dictionary<string, AirQualityDataSetDto?>();
+
+foreach (var uid in sanitizedUids)
+{
+  try
+  {
+    results[uid] = await _airQualityDataRepository.GetDataByUID(uid);
+  }
+  catch (DataNotFoundException ex)
+  {
+    _logger.LogWarning(ex, "Station not found: {Uid}", uid);
+    results[uid] = null; // Bubble up per-station failure
+  }
+  catch (ExternalServiceException ex)
+  {
+    _logger.LogError(ex, "Failed to fetch station: {Uid}", uid);
+    // Optionally include error metadata in response
+  }
+}
+
+return Ok(results);
+```
+
+- Consider processing in throttled batches (see "Performance Issues: Bulk Endpoint Not Optimized").
+- Return per-station error metadata so the frontend can distinguish failures from missing data.
+- Add tests for mixed-success scenarios.
+
+---
+
+### �🔵 Nit: Typo in Property Name
 
 **File:** `api/Models/Dto/AirQualityDataSetDto.cs`
 
@@ -1033,9 +1177,9 @@ public async Task AirQualityByLatLon_WithOutOfRangeCoordinates_ReturnsBadRequest
 
 **Action Required:**
 
-1. Create `docs/engineering/` directory structure
-2. Create referenced documentation files
-3. Update references or remove broken links
+- Create `docs/engineering/` directory structure
+- Create referenced documentation files
+- Update references or remove broken links
 
 ---
 
@@ -1045,7 +1189,7 @@ public async Task AirQualityByLatLon_WithOutOfRangeCoordinates_ReturnsBadRequest
 
 **Recommendations:**
 
-1. Add XML documentation comments:
+- Add XML documentation comments:
 
 ```csharp
 /// <summary>
@@ -1064,7 +1208,7 @@ public async Task AirQualityByLatLon_WithOutOfRangeCoordinates_ReturnsBadRequest
 public async Task<ActionResult<AirQualityDataSetDto>> AirQualityByLatLon(float lat, float lon)
 ```
 
-2. Enable XML documentation in `.csproj`:
+- Enable XML documentation in `.csproj`:
 
 ```xml
 <PropertyGroup>
@@ -1073,7 +1217,7 @@ public async Task<ActionResult<AirQualityDataSetDto>> AirQualityByLatLon(float l
 </PropertyGroup>
 ```
 
-3. Configure Swagger to use XML comments:
+- Configure Swagger to use XML comments:
 
 ```csharp
 builder.Services.AddSwaggerGen(options =>
@@ -1103,6 +1247,14 @@ Create `ui/.env.example`:
 ```bash
 VITE_API_URL=http://localhost:5090
 ```
+
+---
+
+### 🔵 Nit: README Setup Flow Has Incorrect Paths
+
+**Issue:** In `README.md`, Step 3 moves into `api/` (`cd ../api`), but Step 5 repeats `cd api`, which fails because the reader is already inside that directory. Step 6 assumes the working directory is the repo root before running `cd ../ui`.
+
+**Recommendation:** Replace Steps 5 and 6 with context-aware navigation (e.g., remove redundant `cd` commands or add `cd ..` first) so the quick-start commands execute as written.
 
 ---
 
@@ -1386,33 +1538,33 @@ const getAirQualityLevel = (value: number): AirQualityLevel => {
 
 ### High Priority (Blocking 🔴)
 
-1. ✅ Fix exception handling in `AirQualityDataRepository.cs`
-2. ✅ Register `SecurityHeadersMiddleware` in middleware pipeline
-3. ✅ Implement structured error handling in API client
-4. ✅ Fix integration tests to validate responses properly
-5. ✅ Create missing documentation structure
+- ✅ Fix exception handling in `AirQualityDataRepository.cs`
+- ✅ Register `SecurityHeadersMiddleware` in middleware pipeline
+- ✅ Implement structured error handling in API client
+- ✅ Fix integration tests to validate responses properly
+- ✅ Create missing documentation structure
 
 ### Medium Priority (Recommended 🟡)
 
-6. ✅ Switch external API calls from HTTP to HTTPS
-7. ✅ Register and use `InputSanitizationService`
-8. ✅ Add logging to controllers and repositories
-9. ✅ Implement error boundaries in React app
-10. ✅ Extract API data fetching to custom hooks
-11. ✅ Add response caching strategy
-12. ✅ Improve type safety in TypeScript code
-13. ✅ Externalize rate limiting configuration
-14. ✅ Add comprehensive test coverage for error paths
-15. ✅ Create `.env.example` files
-16. ✅ Add API documentation with XML comments
+- ✅ Switch external API calls from HTTP to HTTPS
+- ✅ Register and use `InputSanitizationService`
+- ✅ Add logging to controllers and repositories
+- ✅ Implement error boundaries in React app
+- ✅ Extract API data fetching to custom hooks
+- ✅ Add response caching strategy
+- ✅ Improve type safety in TypeScript code
+- ✅ Externalize rate limiting configuration
+- ✅ Add comprehensive test coverage for error paths
+- ✅ Create `.env.example` files
+- ✅ Add API documentation with XML comments
 
 ### Low Priority (Nits 🔵)
 
-17. ✅ Fix naming inconsistencies
-18. ✅ Remove commented code
-19. ✅ Rename `ApiClient.tsx` to `ApiClient.ts`
-20. ✅ Remove unused using statements
-21. ✅ Extract magic numbers to constants
+- ✅ Fix naming inconsistencies
+- ✅ Remove commented code
+- ✅ Rename `ApiClient.tsx` to `ApiClient.ts`
+- ✅ Remove unused using statements
+- ✅ Extract magic numbers to constants
 
 ---
 
