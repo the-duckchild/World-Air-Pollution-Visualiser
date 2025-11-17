@@ -1,4 +1,5 @@
 # Code Review Recommendations
+
 ## World Air Pollution Visualiser
 
 **Review Date:** November 17, 2025  
@@ -11,24 +12,189 @@
 
 This codebase demonstrates solid engineering practices with strong security considerations, comprehensive input validation, and good separation of concerns. The project includes both backend (.NET) and frontend (React/TypeScript) components with reasonable test coverage. However, several areas require attention to improve maintainability, reliability, and adherence to best practices.
 
+**Review Methodology:** This review follows the code review checklist in `docs/engineering/code-review-guidelines.md`, covering PR hygiene, correctness, tests, security, performance, maintainability, architecture, documentation, and accessibility.
+
 **Positive Observations:**
+
 - ✅ Excellent security implementation with rate limiting, input sanitization, and security headers
 - ✅ Clear separation of concerns with controller-service-repository pattern
 - ✅ Good input validation in API endpoints
 - ✅ Comprehensive security documentation (SECURITY.md)
 - ✅ Modern frontend stack with TypeScript and React 19
+- ✅ Strong focus on security best practices throughout the codebase
 
 **Key Areas for Improvement:**
-- Error handling and exception management
-- Test coverage gaps (especially integration tests)
-- Missing documentation structure
-- Configuration management
-- Code duplication and unused code
-- API client error handling
+
+- **Correctness:** Error handling and exception management in repository layer
+- **Tests & Coverage:** Integration test quality and critical path coverage gaps
+- **Documentation:** Missing API documentation and environment setup files
+- **Configuration:** Externalization and environment-specific settings
+- **Performance:** No caching strategy for external API calls
+- **Maintainability:** Component complexity and unused code
 
 ---
 
-## Backend (C#/.NET) Issues
+## Review Approach
+
+This review follows the principles outlined in `docs/engineering/code-review-guidelines.md`:
+
+**✅ Be Kind and Constructive**
+
+- Findings focus on improving code quality, not criticizing authors
+- Each issue includes clear rationale tied to project standards
+- Positive observations highlighted throughout
+
+**✅ Ask Questions**
+
+- Findings formatted as observations with explanations
+- References to authoritative documentation provided
+- Context given for why changes are recommended
+
+**✅ Offer Alternatives**
+
+- Every blocking/recommended issue includes concrete fix examples
+- Code snippets demonstrate the recommended approach
+- Multiple solution paths suggested where applicable
+
+**✅ Automate**
+
+- Several issues (nits) could be caught by linters/formatters
+- Recommendations include tooling suggestions (ESLint, Zod, etc.)
+- References static analysis best practices from project instructions
+
+**Severity Taxonomy Applied:**
+
+- **Blocking (🔴):** Must fix before merge - correctness, security, policy violations
+- **Recommended (🟡):** Improves quality/maintainability but not required for merge  
+- **Nit (🔵):** Minor suggestions or style that linters could handle
+
+---
+
+## Findings by Review Checklist Category
+
+This section maps findings to the code review checklist in `docs/engineering/code-review-guidelines.md`.
+
+### 1. PR Hygiene and Scope ✅
+
+**Status:** Good
+
+- Clear project structure and organization
+- Reasonable separation of concerns
+- No issues identified in this area
+
+### 2. Correctness and Behavior ⚠️
+
+**Issues Found:**
+
+- 🔴 **Blocking:** Repository exception handling doesn't properly handle external API failures, null responses, or HTTP errors
+- 🔴 **Blocking:** Integration tests accept 500 errors as success, masking correctness issues
+- 🟡 **Recommended:** No explicit error handling for edge cases like empty UID lists or malformed coordinates
+
+**Details:** See "Backend Issues: Exception Handling in Repository Layer" and "Testing Issues: Integration Tests Don't Validate Responses"
+
+### 3. Tests and Coverage ⚠️
+
+**Issues Found:**
+
+- 🔴 **Blocking:** Integration tests only validate status codes, not response structure or data
+- 🟡 **Recommended:** Missing tests for critical error paths (rate limiting, security headers, external API failures)
+- 🟡 **Recommended:** No frontend tests for retry logic, error states, or loading states
+- 🔵 **Nit:** Generic test file name (`UnitTest1.cs`)
+
+**Coverage Status:** Current tests exist but don't meet the 100% requirement for hot/error/security paths per `.github/copilot-instructions.md#quality-policy`.
+
+**Details:** See "Testing Issues" section
+
+### 4. Security ⚠️
+
+**Issues Found:**
+
+- 🔴 **Blocking:** SecurityHeadersMiddleware implemented but not registered, leaving API vulnerable
+- 🔴 **Blocking:** API key could be logged by RestSharp in full URLs
+- 🟡 **Recommended:** HTTP used instead of HTTPS for external API calls, exposing tokens in transit
+- 🟡 **Recommended:** InputSanitizationService created but never used
+- 🟡 **Recommended:** Manual validation instead of validation attributes (less idiomatic, more error-prone)
+
+**Positive Notes:**
+
+- Excellent rate limiting implementation
+- Comprehensive input validation in controllers
+- Well-documented security measures in SECURITY.md
+- Proper CORS configuration
+
+**Details:** See "Backend Issues: SecurityHeadersMiddleware Not Registered" and "Security Issues" section
+
+### 5. Performance and Reliability ⚠️
+
+**Issues Found:**
+
+- 🟡 **Recommended:** No caching strategy - every request hits external API
+- 🟡 **Recommended:** Bulk UID endpoint runs unlimited parallel requests without throttling
+- 🟡 **Recommended:** Frontend API client lacks retry logic or timeout handling
+- 🟡 **Recommended:** No circuit breaker for external API failures
+
+**Impact:** Could lead to rate limiting from external API, excessive costs, and poor user experience during transient failures.
+
+**Details:** See "Performance Issues" section
+
+### 6. Maintainability and Readability ⚠️
+
+**Issues Found:**
+
+- 🟡 **Recommended:** Large component (AqiFiguresDisplay.tsx, 300+ lines) with multiple responsibilities
+- 🟡 **Recommended:** No logging in controllers or repositories for debugging
+- 🔵 **Nit:** Inconsistent naming (mix of PascalCase and camelCase in DTOs)
+- 🔵 **Nit:** Commented-out code in App.tsx and Program.cs
+- 🔵 **Nit:** Magic numbers for AQI thresholds
+- 🔵 **Nit:** Unused using statements and variables
+
+**Positive Notes:**
+
+- Clear separation of concerns (controller-service-repository)
+- Good use of TypeScript for type safety
+- Consistent project structure
+
+**Details:** See "Frontend Issues: Component State Management Complexity" and "Code Quality Issues" section
+
+### 7. Architecture and Boundaries ✅
+
+**Status:** Good
+
+- Clean layered architecture (controller → repository → external API)
+- Proper dependency injection setup
+- Middleware pattern correctly applied
+- Repository interfaces properly defined
+
+**Minor Observation:**
+
+- 🟡 **Recommended:** Consider adding a service layer between controller and repository for business logic
+
+### 8. Documentation and Ops ⚠️
+
+**Issues Found:**
+
+- 🔴 **Blocking:** Referenced documentation files (`docs/engineering/code-review-guidelines.md`) were missing (now resolved)
+- 🟡 **Recommended:** No XML documentation comments for API endpoints
+- 🟡 **Recommended:** Missing `.env.example` files mentioned in README
+- 🟡 **Recommended:** CORS configuration hardcoded instead of environment-specific
+- 🟡 **Recommended:** Rate limiting values hardcoded instead of externalized
+
+**Details:** See "Documentation Issues" and "Configuration & Infrastructure Issues" sections
+
+### 9. UX/UI and Accessibility ⚠️
+
+**Issues Found:**
+
+- 🔴 **Blocking:** No error boundaries to catch and handle React rendering errors
+- 🟡 **Recommended:** Switches and color indicators lack ARIA labels and descriptions
+- 🟡 **Recommended:** No visible loading states for async operations
+- 🟡 **Recommended:** Error messages not user-friendly (technical HTTP status codes)
+
+**Details:** See "Frontend Issues: Missing Error Boundaries" and "Missing Accessibility Labels"
+
+---
+
+## Detailed Findings by Component
 
 ### 🔴 Blocking: Exception Handling in Repository Layer
 
@@ -37,6 +203,7 @@ This codebase demonstrates solid engineering practices with strong security cons
 **Issue:** The repository throws generic exceptions that expose internal details and don't follow the centralized error handling pattern outlined in backend.instructions.md.
 
 **Current Code:**
+
 ```csharp
 if (jsonResult != null)
 {
@@ -54,6 +221,7 @@ throw new Exception($"No Station found with UID {uid}");
 ```
 
 **Problems:**
+
 1. Generic `Exception` instead of domain-specific exception
 2. No handling of external API failures
 3. Exposes internal details in exception messages
@@ -62,6 +230,7 @@ throw new Exception($"No Station found with UID {uid}");
 6. No HTTP status code validation
 
 **Recommended Fix:**
+
 ```csharp
 public async Task<AirQualityDataSetDto> GetDataByUID(string uid)
 {
@@ -108,7 +277,8 @@ public async Task<AirQualityDataSetDto> GetDataByUID(string uid)
 }
 ```
 
-**Action Required:** 
+**Action Required:**
+
 - Create custom exception types: `DataNotFoundException`, `ExternalServiceException`
 - Add ILogger dependency injection to repository
 - Implement global exception handler in Program.cs as shown in backend.instructions.md
@@ -123,6 +293,7 @@ public async Task<AirQualityDataSetDto> GetDataByUID(string uid)
 **Issue:** `SecurityHeadersMiddleware` is implemented but never registered in the middleware pipeline.
 
 **Current State:**
+
 ```csharp
 app.UseRateLimiting();
 app.UseCors(AllowSpecificOrigins);
@@ -131,6 +302,7 @@ app.UseAuthorization();
 ```
 
 **Fix:**
+
 ```csharp
 app.UseRateLimiting();
 app.UseSecurityHeaders(); // Add this
@@ -149,11 +321,13 @@ app.UseAuthorization();
 **Issue:** External API calls use HTTP instead of HTTPS.
 
 **Current:**
+
 ```csharp
 $"http://api.waqi.info/feed/@{uid}/?token={apiKey}"
 ```
 
 **Recommended:**
+
 ```csharp
 $"https://api.waqi.info/feed/@{uid}/?token={apiKey}"
 ```
@@ -169,12 +343,15 @@ $"https://api.waqi.info/feed/@{uid}/?token={apiKey}"
 **Issue:** A comprehensive input sanitization service exists but is never registered in DI or used in controllers.
 
 **Action Required:**
+
 1. Register in Program.cs:
+
 ```csharp
 builder.Services.AddScoped<IInputSanitizationService, InputSanitizationService>();
 ```
 
 2. Use in AirQualityDataController:
+
 ```csharp
 public class AirQualityDataController : ControllerBase
 {
@@ -208,6 +385,7 @@ public class AirQualityDataController : ControllerBase
 **Issue:** C# property naming is inconsistent - mix of PascalCase and camelCase.
 
 **Current:**
+
 ```csharp
 public class Data
 {
@@ -228,6 +406,7 @@ public class City
 ```
 
 **Fix:** Use PascalCase for all properties and apply JSON mapping attributes:
+
 ```csharp
 using System.Text.Json.Serialization;
 
@@ -268,6 +447,7 @@ public class City
 **Issue:** No logging for successful requests or errors. This violates observability requirements in backend.instructions.md.
 
 **Recommendation:**
+
 ```csharp
 public class AirQualityDataController : ControllerBase
 {
@@ -311,6 +491,7 @@ public class AirQualityDataController : ControllerBase
 **Issue:** Rate limit values are hardcoded. Should be in appsettings.json per backend.instructions.md configuration management guidelines.
 
 **Current:**
+
 ```csharp
 public RateLimitingMiddleware(
     RequestDelegate next,
@@ -321,6 +502,7 @@ public RateLimitingMiddleware(
 
 **Recommended:**
 Add to `appsettings.json`:
+
 ```json
 {
   "RateLimiting": {
@@ -331,6 +513,7 @@ Add to `appsettings.json`:
 ```
 
 Then in Program.cs:
+
 ```csharp
 builder.Services.Configure<RateLimitOptions>(
     builder.Configuration.GetSection("RateLimiting"));
@@ -351,6 +534,7 @@ builder.Services.Configure<RateLimitOptions>(
 **File:** `api/Program.cs`
 
 **Issue:** Commented-out code should be removed:
+
 ```csharp
 // Don't use HTTPS redirection - Cloud Run handles HTTPS termination
 // if (!app.Environment.IsDevelopment())
@@ -372,6 +556,7 @@ builder.Services.Configure<RateLimitOptions>(
 **Issue:** API client throws errors but provides no structured error handling or retry logic.
 
 **Current Code:**
+
 ```typescript
 export async function getAqiFiguresByLatLon(lat: number, lon: number): Promise<AirQualityDataSetDto> {
     const response = await fetch(`${API_URL}/air-quality-data-by-latlon/${lat}/${lon}`);
@@ -385,6 +570,7 @@ export async function getAqiFiguresByLatLon(lat: number, lon: number): Promise<A
 ```
 
 **Problems:**
+
 1. Generic error messages don't help users
 2. No retry logic for transient failures
 3. No timeout handling
@@ -392,6 +578,7 @@ export async function getAqiFiguresByLatLon(lat: number, lon: number): Promise<A
 5. Doesn't follow frontend.instructions.md error handling guidance
 
 **Recommended Fix:**
+
 ```typescript
 export class ApiError extends Error {
     constructor(
@@ -467,6 +654,7 @@ Apply similar pattern to `getAqiFiguresByUID` and `getAqiFiguresByUIDs`.
 **Issue:** Component has multiple responsibilities and complex state management that could be simplified.
 
 **Current Issues:**
+
 1. Fetches data directly in useEffect (should use API client hook or SWR/React Query)
 2. Time formatting logic mixed with display logic
 3. Large component (300+ lines) handling multiple concerns
@@ -474,6 +662,7 @@ Apply similar pattern to `getAqiFiguresByUID` and `getAqiFiguresByUIDs`.
 5. No loading states shown to user
 
 **Recommended Approach:**
+
 ```typescript
 // Create custom hook: useAirQualityData.ts
 import { useState, useEffect } from 'react';
@@ -518,6 +707,7 @@ export function useAirQualityData(lat: number, lon: number): UseAirQualityDataRe
 ```
 
 Then simplify the component:
+
 ```typescript
 const AqiFigures: React.FC<AqiFiguresDisplayProps> = ({ 
   currentLongLat, 
@@ -542,6 +732,7 @@ const AqiFigures: React.FC<AqiFiguresDisplayProps> = ({
 **Issue:** No error boundaries to catch rendering errors. Frontend.instructions.md requires error boundaries around risky trees.
 
 **Recommendation:**
+
 ```typescript
 // ErrorBoundary.tsx
 import { Component, ErrorInfo, ReactNode } from 'react';
@@ -588,6 +779,7 @@ export class ErrorBoundary extends Component<Props, State> {
 ```
 
 Then wrap App:
+
 ```typescript
 function App() {
   return (
@@ -611,11 +803,13 @@ function App() {
 **Issue:** File has `.tsx` extension but exports no JSX. Interface definitions could be more strict.
 
 **Problems:**
+
 1. Should be `.ts` not `.tsx`
 2. Nullable fields everywhere make the API harder to use safely
 3. No runtime validation of API responses
 
 **Recommendations:**
+
 1. Rename to `ApiClient.ts`
 2. Add Zod or similar for runtime validation:
 
@@ -657,6 +851,7 @@ export async function getAqiFiguresByLatLon(lat: number, lon: number): Promise<A
 **Issue:** Switches and color indicators lack proper accessibility attributes as required by frontend.instructions.md.
 
 **Current:**
+
 ```typescript
 <Switch
   id={config.key}
@@ -667,6 +862,7 @@ export async function getAqiFiguresByLatLon(lat: number, lon: number): Promise<A
 ```
 
 **Recommended:**
+
 ```typescript
 <Switch
   id={config.key}
@@ -684,6 +880,7 @@ export async function getAqiFiguresByLatLon(lat: number, lon: number): Promise<A
 ```
 
 Also add ARIA attributes to color indicators:
+
 ```typescript
 <div
   className="..."
@@ -719,6 +916,7 @@ Also add ARIA attributes to color indicators:
 **Issue:** Integration tests only check status codes, not response content or structure.
 
 **Current:**
+
 ```csharp
 [Fact]
 public async Task AirQualityByUID_WithValidUID_ReturnsSuccessStatusCode()
@@ -734,12 +932,14 @@ public async Task AirQualityByUID_WithValidUID_ReturnsSuccessStatusCode()
 ```
 
 **Problems:**
+
 1. Accepts 500 errors as success
 2. Doesn't validate response body
 3. Doesn't test error cases
 4. No assertions on data structure
 
 **Recommended:**
+
 ```csharp
 [Fact]
 public async Task AirQualityByUID_WithValidUID_ReturnsValidData()
@@ -796,6 +996,7 @@ public async Task AirQualityByLatLon_WithOutOfRangeCoordinates_ReturnsBadRequest
 **Issue:** According to `.github/copilot-instructions.md#quality-policy`, critical paths including error/exception handling should have 100% coverage.
 
 **Missing Tests:**
+
 1. **Backend:**
    - Rate limiting middleware edge cases
    - Security headers application
@@ -831,6 +1032,7 @@ public async Task AirQualityByLatLon_WithOutOfRangeCoordinates_ReturnsBadRequest
 **Impact:** This causes compile errors in the chatmode file and breaks the SSOT (Single Source of Truth) principle.
 
 **Action Required:**
+
 1. Create `docs/engineering/` directory structure
 2. Create referenced documentation files
 3. Update references or remove broken links
@@ -842,7 +1044,9 @@ public async Task AirQualityByLatLon_WithOutOfRangeCoordinates_ReturnsBadRequest
 **Issue:** No OpenAPI/Swagger documentation enhancements beyond default setup.
 
 **Recommendations:**
+
 1. Add XML documentation comments:
+
 ```csharp
 /// <summary>
 /// Retrieves air quality data for the specified geographic coordinates
@@ -861,6 +1065,7 @@ public async Task<ActionResult<AirQualityDataSetDto>> AirQualityByLatLon(float l
 ```
 
 2. Enable XML documentation in `.csproj`:
+
 ```xml
 <PropertyGroup>
   <GenerateDocumentationFile>true</GenerateDocumentationFile>
@@ -869,6 +1074,7 @@ public async Task<ActionResult<AirQualityDataSetDto>> AirQualityByLatLon(float l
 ```
 
 3. Configure Swagger to use XML comments:
+
 ```csharp
 builder.Services.AddSwaggerGen(options =>
 {
@@ -886,12 +1092,14 @@ builder.Services.AddSwaggerGen(options =>
 
 **Action Required:**
 Create `api/.env.example`:
+
 ```bash
 AIR_POLLUTION_API_KEY=your_api_key_here
 PORT=5090
 ```
 
 Create `ui/.env.example`:
+
 ```bash
 VITE_API_URL=http://localhost:5090
 ```
@@ -907,6 +1115,7 @@ VITE_API_URL=http://localhost:5090
 **Issue:** CORS configuration is in base `appsettings.json` but should be environment-specific.
 
 **Current:**
+
 ```json
 {
   "Cors": {
@@ -920,6 +1129,7 @@ VITE_API_URL=http://localhost:5090
 **Recommended Structure:**
 
 `appsettings.json` (base):
+
 ```json
 {
   "Logging": {
@@ -931,6 +1141,7 @@ VITE_API_URL=http://localhost:5090
 ```
 
 `appsettings.Development.json`:
+
 ```json
 {
   "Cors": {
@@ -942,6 +1153,7 @@ VITE_API_URL=http://localhost:5090
 ```
 
 `appsettings.Production.json`:
+
 ```json
 {
   "Cors": {
@@ -968,6 +1180,7 @@ const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5090';
 ```
 
 **Recommendation:**
+
 ```typescript
 const DEFAULT_API_URL = 'http://localhost:5090';
 const API_URL = import.meta.env.VITE_API_URL || DEFAULT_API_URL;
@@ -989,6 +1202,7 @@ if (!import.meta.env.VITE_API_URL) {
 
 **Recommendation:**
 Add a log filter or ensure RestSharp doesn't log full URLs:
+
 ```csharp
 // In Program.cs
 builder.Logging.AddFilter("RestSharp", LogLevel.Warning);
@@ -1003,6 +1217,7 @@ builder.Logging.AddFilter("RestSharp", LogLevel.Warning);
 **Issue:** While validation logic exists, using validation attributes would be more idiomatic.
 
 **Current:**
+
 ```csharp
 [HttpGet("air-quality-data-by-latlon/{lat}/{lon}")]
 public async Task<ActionResult<AirQualityDataSetDto>> AirQualityByLatLon(float lat, float lon)
@@ -1016,6 +1231,7 @@ public async Task<ActionResult<AirQualityDataSetDto>> AirQualityByLatLon(float l
 ```
 
 **Recommended (using FluentValidation or DataAnnotations):**
+
 ```csharp
 public class CoordinateRequest
 {
@@ -1063,6 +1279,7 @@ public async Task<ActionResult<AirQualityDataSetDto>> AirQualityByLatLon(float l
 ```
 
 Or implement distributed caching with Redis for production:
+
 ```csharp
 builder.Services.AddStackExchangeRedisCache(options =>
 {
@@ -1079,12 +1296,14 @@ builder.Services.AddStackExchangeRedisCache(options =>
 **Issue:** Bulk UID endpoint runs all requests in parallel without throttling, which could overwhelm the external API.
 
 **Current:**
+
 ```csharp
 var tasks = sanitizedUids.Select(uid => _airQualityDataRepository.GetDataByUID(uid));
 var results = await Task.WhenAll(tasks);
 ```
 
 **Recommended (with throttling):**
+
 ```csharp
 // Process in batches to avoid overwhelming external API
 const int batchSize = 10;
@@ -1114,6 +1333,7 @@ for (int i = 0; i < sanitizedUids.Count; i += batchSize)
 **Files:** Multiple files have unused using statements.
 
 Examples:
+
 - `api/Models/Dto/AirQualityDataSetDto.cs`: `CsvHelper`, `CsvHelper.Configuration.Attributes`, `Microsoft.Net.Http.Headers`
 - These should be removed for clarity
 
@@ -1126,6 +1346,7 @@ Examples:
 **Issue:** Air quality thresholds are hardcoded.
 
 **Current:**
+
 ```typescript
 const getAirQualityLevel = (value: number): AirQualityLevel => {
   if (value <= 50) {
@@ -1138,6 +1359,7 @@ const getAirQualityLevel = (value: number): AirQualityLevel => {
 ```
 
 **Recommended:**
+
 ```typescript
 const AQI_THRESHOLDS = {
   GOOD: { max: 50, color: '#16a34a', label: 'Good' },
@@ -1163,6 +1385,7 @@ const getAirQualityLevel = (value: number): AirQualityLevel => {
 ## Summary of Action Items
 
 ### High Priority (Blocking 🔴)
+
 1. ✅ Fix exception handling in `AirQualityDataRepository.cs`
 2. ✅ Register `SecurityHeadersMiddleware` in middleware pipeline
 3. ✅ Implement structured error handling in API client
@@ -1170,6 +1393,7 @@ const getAirQualityLevel = (value: number): AirQualityLevel => {
 5. ✅ Create missing documentation structure
 
 ### Medium Priority (Recommended 🟡)
+
 6. ✅ Switch external API calls from HTTP to HTTPS
 7. ✅ Register and use `InputSanitizationService`
 8. ✅ Add logging to controllers and repositories
@@ -1183,6 +1407,7 @@ const getAirQualityLevel = (value: number): AirQualityLevel => {
 16. ✅ Add API documentation with XML comments
 
 ### Low Priority (Nits 🔵)
+
 17. ✅ Fix naming inconsistencies
 18. ✅ Remove commented code
 19. ✅ Rename `ApiClient.tsx` to `ApiClient.ts`
@@ -1193,21 +1418,116 @@ const getAirQualityLevel = (value: number): AirQualityLevel => {
 
 ## Conclusion
 
-This codebase demonstrates strong security awareness and good architectural patterns. The main areas requiring attention are:
+This codebase demonstrates strong security awareness and good architectural patterns. The review, conducted according to the guidelines in `docs/engineering/code-review-guidelines.md`, identified issues across multiple categories with varying severity.
 
-1. **Error Handling:** Both backend and frontend need more robust, structured error handling
-2. **Testing:** Coverage gaps in critical paths, especially error scenarios
-3. **Documentation:** Missing structural documentation and examples
-4. **Type Safety:** Frontend could benefit from runtime validation
-5. **Performance:** Add caching to reduce external API load
+### Review Summary by Checklist Category
 
-The security implementation is particularly noteworthy, with comprehensive input validation, rate limiting, and sanitization services. Once the blocking issues are addressed, this will be a solid, production-ready application.
+| Category | Status | Blocking | Recommended | Nits |
+|----------|--------|----------|-------------|------|
+| 1. PR Hygiene and Scope | ✅ Good | 0 | 0 | 0 |
+| 2. Correctness and Behavior | ⚠️ Needs Work | 2 | 1 | 0 |
+| 3. Tests and Coverage | ⚠️ Needs Work | 1 | 2 | 1 |
+| 4. Security | ⚠️ Needs Work | 3 | 3 | 0 |
+| 5. Performance and Reliability | ⚠️ Needs Work | 0 | 4 | 0 |
+| 6. Maintainability and Readability | ⚠️ Needs Work | 0 | 2 | 6 |
+| 7. Architecture and Boundaries | ✅ Good | 0 | 1 | 0 |
+| 8. Documentation and Ops | ⚠️ Needs Work | 1 | 4 | 0 |
+| 9. UX/UI and Accessibility | ⚠️ Needs Work | 2 | 3 | 0 |
+| **Totals** | | **9** | **20** | **7** |
+
+### Strengths
+
+1. **Security-First Mindset:** Comprehensive input validation, rate limiting implementation, and security documentation
+2. **Clean Architecture:** Well-structured layered architecture with proper separation of concerns
+3. **Modern Stack:** TypeScript, React 19, .NET 8 with current best practices
+4. **Repository Pattern:** Proper abstraction of data access layer
+
+### Critical Areas Requiring Immediate Action
+
+**The 9 blocking issues must be addressed before this code can be considered production-ready:**
+
+1. **Exception Handling:** Repository layer doesn't handle external API failures properly
+2. **Test Quality:** Integration tests don't validate responses, just status codes
+3. **Security Headers:** Middleware implemented but not registered
+4. **API Key Security:** Potential logging exposure
+5. **Documentation Structure:** Missing referenced files (resolved during review)
+6. **Error Boundaries:** React app lacks error boundary protection
+7. **API Client Errors:** No structured error handling in frontend
+8. **Error States:** No user-facing error handling for failed requests
+9. **Accessibility:** Missing ARIA labels and keyboard navigation support
+
+### Recommended Improvements for Production Readiness
+
+The 20 recommended issues would significantly improve quality and maintainability:
+
+1. **Performance:** Add caching strategy to reduce external API load and costs
+2. **Testing:** Achieve 100% coverage on hot/error/security paths per policy
+3. **Observability:** Add logging to controllers and repositories
+4. **Type Safety:** Add runtime validation with Zod or similar
+5. **Configuration:** Externalize all environment-specific settings
+6. **Documentation:** Add XML comments and API documentation
+
+### Minor Quality Improvements
+
+The 7 nit-level issues are primarily style and consistency:
+
+- Remove commented code and unused imports
+- Extract magic numbers to constants
+- Fix naming inconsistencies
+- Rename files to match conventions
+
+### Adherence to Repository Policies
+
+**Quality & Coverage Policy (`.github/copilot-instructions.md#quality-policy`):**
+
+- ⚠️ **Not Met:** Core domain logic and hot paths lack 100% test coverage
+- ⚠️ **Not Met:** Error and exception paths not fully covered
+- ⚠️ **Not Met:** Security-relevant logic needs additional test coverage
+
+**Branch/PR Conventions (`.github/copilot-instructions.md`):**
+
+- ✅ **Met:** Current branch follows naming convention (`chore/code-review-2025-11-17-sc`)
+- ✅ **Met:** Repository structure follows template guidelines
+
+### Impact Assessment
+
+**If deployed as-is:**
+
+- **High Risk:** Unhandled external API failures could cause crashes
+- **High Risk:** Missing security headers expose API to XSS/clickjacking
+- **High Risk:** React app could crash without error boundaries
+- **Medium Risk:** Poor user experience during errors (no friendly messages)
+- **Medium Risk:** High external API costs without caching
+- **Low Risk:** Style inconsistencies reduce maintainability
+
+**After addressing blocking issues:**
+
+- Ready for staging/QA environment testing
+- Not yet ready for production without recommended improvements
+
+**After addressing recommended issues:**
+
+- Production-ready with monitoring and observability
+- Sustainable for long-term maintenance
+- Meets repository quality standards
 
 ---
 
 **Next Steps:**
-1. Address blocking issues in order listed above
-2. Create missing documentation files referenced in `.github/` instructions
-3. Increase test coverage to meet the 90% threshold specified in `.github/copilot-instructions.md#quality-policy`
-4. Consider adding monitoring/observability tooling (Application Insights, Sentry, etc.)
-5. Set up CI/CD pipeline with automated testing and security scanning
+
+1. **Immediate (Blocking):** Address all 9 blocking issues in priority order
+2. **Short-term (Recommended):** Implement caching, logging, and improve test coverage
+3. **Medium-term (Nits):** Clean up code quality issues and style inconsistencies
+4. **Continuous:** Increase test coverage to meet the 90% threshold specified in `.github/copilot-instructions.md#quality-policy`
+5. **Future:** Consider adding monitoring/observability tooling (Application Insights, Sentry, etc.)
+6. **Future:** Set up CI/CD pipeline with automated testing and security scanning
+
+---
+
+## References
+
+- **Code Review Guidelines:** `docs/engineering/code-review-guidelines.md`
+- **Repository Instructions:** `.github/copilot-instructions.md`
+- **Quality & Coverage Policy:** `.github/copilot-instructions.md#quality-policy`
+- **Backend Guidelines:** `.github/instructions/backend.instructions.md`
+- **Frontend Guidelines:** `.github/instructions/frontend.instructions.md`
