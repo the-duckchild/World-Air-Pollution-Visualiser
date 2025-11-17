@@ -665,7 +665,7 @@ return Ok(results);
 
 ---
 
-### �🔵 Nit: Typo in Property Name
+### 🔵 Nit: Typo in Property Name
 
 **File:** `api/Models/Dto/AirQualityDataSetDto.cs`
 
