@@ -1,7 +1,7 @@
 import { PerspectiveCamera, OrbitControls, Edges } from "@react-three/drei";
 import type { OrbitControls as OrbitControlsImpl } from "three-stdlib";
 import type { Iaqi } from "../../Api/ApiClient";
-import { useEffect, useRef, useState, useMemo } from "react";
+import { useEffect, useRef, useState, useMemo, memo } from "react";
 import { ParticleSystem } from "./ParticleSystems";
 import { Canvas } from "@react-three/fiber";
 import * as THREE from "three";
@@ -37,6 +37,11 @@ export function AqiVisualiser({
   >([0, 0, 65]);
 
   const [isLoading, setIsLoading] = useState(true);
+   const [terrainConfig, setTerrainConfig] = useState({
+    planeSize: 800,
+    grassInstances: 750000,
+  });
+  const [devicePixelRatio, setDevicePixelRatio] = useState<[number, number]>([1, 1.5]);
 
   // Hide loading after components are initialized
   useEffect(() => {
@@ -52,9 +57,13 @@ export function AqiVisualiser({
       const windowWidth = window.innerWidth;
       const windowHeight = window.innerHeight;
       const isPortrait = windowHeight > windowWidth;
-  
 
       let zoomDistance = 60; 
+      let planeSize = 800;
+      let grassInstances = 400000;
+      let dpr: [number, number] = [1, 1.5]; // Default for desktop
+
+ 
       if (isPortrait) {
         BOUNDS = { x: 40, y: 40, z: 40 };
         ROTATION = {x: 0, y:0, z:0};
@@ -62,27 +71,41 @@ export function AqiVisualiser({
 
       if (windowWidth < 600) {
         zoomDistance = 125;
+        planeSize = 300;
+        grassInstances = 40000;
+        dpr = [1, 1]; // Lower DPR for small mobile
       } else if (windowWidth < 800) {
         zoomDistance = 100;
+        planeSize = 400;
+        grassInstances = 100000;
+        dpr = [1, 1]; // Lower DPR for tablets
       } 
       else if (windowWidth < 1000) {
         zoomDistance = 110;
+        planeSize = 500;
+        grassInstances = 150000; 
       } else if (windowWidth < 1200) {
         zoomDistance = 95;
+        planeSize = 800;
+        grassInstances = 300000; 
       } else if (windowWidth < 1920) {
-        zoomDistance = 70; 
+        zoomDistance = 70;
+        planeSize = 800;
+        grassInstances = 500000; 
       } else {
-        zoomDistance = 55; 
+        zoomDistance = 55;
+        planeSize = 800;
+        grassInstances = 750000;
       }
       
-
       setCameraPosition([0, 0, zoomDistance]);
-      
+      setTerrainConfig({ planeSize, grassInstances });
+      setDevicePixelRatio(dpr);
     };
 
     updateCameraPosition();
     window.addEventListener("resize", updateCameraPosition);
-
+            
     return () => {
       window.removeEventListener("resize", updateCameraPosition);
     };
@@ -196,12 +219,16 @@ export function AqiVisualiser({
           }}>
           <Canvas
             gl={{
-              antialias: false,
+              antialias: false, // Disabled for better mobile performance
               alpha: false,
               powerPreference: "high-performance",
+              stencil: false, // Disable stencil buffer: not required for this scene, reduces memory usage and can improve performance,
+                              // especially on mobile devices. Enables faster context creation and lower GPU resource consumption.
+              depth: true,
             }}
-            dpr={[1, 1.5]}
-            performance={{ min: 0.8 }}>
+            dpr={devicePixelRatio} // Reactive pixel ratio based on device size
+            performance={{ min: 0.5 }} // Allow lower frame rates on slow devices
+          >
             <fog attach="fog" args={[0xcccccc, 200, 600]} />
             <Sun longitude={longitude} latitude={latitude} />
             <ambientLight color={0xffffff} intensity={0.3} />
@@ -210,7 +237,7 @@ export function AqiVisualiser({
               enableDamping
               dampingFactor={0.05}
               minPolarAngle={0}
-              maxPolarAngle={Math.PI * 0.551}
+              maxPolarAngle={Math.PI * 0.53}
               minDistance={10}
               maxDistance={200}
             />
@@ -224,9 +251,9 @@ export function AqiVisualiser({
 
             <group position={[0, -25.1, 0]}>
               <Grass
-                instances={750000}
-                width={800}
-                depth={800}
+                instances={terrainConfig.grassInstances}
+                width={terrainConfig.planeSize}
+                depth={terrainConfig.planeSize}
                 windStrength={0.8}
               />
             </group>
@@ -299,4 +326,7 @@ export function AqiVisualiser({
       </div>
     </>
   );
-};
+}
+
+// Export memoized version to prevent unnecessary re-renders
+export default memo(AqiVisualiser);
