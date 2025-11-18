@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { TickerTape } from "../.././components/TickerTape";
 import AqiFiguresDisplay from "../.././components/AqiFiguresDisplay";
 import { AqiVisualiser } from "../../components/AqiVisualiser/AqiVisualiser";
@@ -35,14 +35,15 @@ const HomePage = () => {
     so2: false,
   });
 
-  const fallbackIaqi: Iaqi = {
+  // Memoize fallback data to prevent new object creation on every render
+  const fallbackIaqi: Iaqi = useMemo(() => ({
     co: { v: 0 },
     co2: { v: 0 },
     no2: { v: 0 },
     pm10: { v: 0 },
     pm25: { v: 0 },
     so2: { v: 0 },
-  };
+  }), []);
 
   const [currentLongLat, setCurrentLongLat] = useState<LongLat>({
     Longitude: LONDON_COORDS.Longitude,
@@ -176,7 +177,7 @@ const HomePage = () => {
           {/* AqiVisualiser - hidden when map is visible */}
           <div style={{ display: mapVisible ? "none" : "block" }}>
             <AqiVisualiser
-              data={aqiForClosestStation?.data?.iaqi || fallbackIaqi}
+              data={useMemo(() => aqiForClosestStation?.data?.iaqi || fallbackIaqi, [aqiForClosestStation?.data?.iaqi, fallbackIaqi])}
               overallAqi={aqiForClosestStation?.data?.aqi}
               enabledSystems={enabledSystems}
               longitude={currentLongLat.Longitude}

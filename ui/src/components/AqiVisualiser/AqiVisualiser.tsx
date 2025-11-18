@@ -41,6 +41,7 @@ export function AqiVisualiser({
     planeSize: 800,
     grassInstances: 750000,
   });
+  const [devicePixelRatio, setDevicePixelRatio] = useState<[number, number]>([1, 1.5]);
 
   // Hide loading after components are initialized
   useEffect(() => {
@@ -59,7 +60,8 @@ export function AqiVisualiser({
 
       let zoomDistance = 60; 
       let planeSize = 800;
-      let grassInstances = 400000; 
+      let grassInstances = 400000;
+      let dpr: [number, number] = [1, 1.5]; // Default for desktop
 
  
       if (isPortrait) {
@@ -70,11 +72,13 @@ export function AqiVisualiser({
       if (windowWidth < 600) {
         zoomDistance = 125;
         planeSize = 300;
-        grassInstances = 40000; 
+        grassInstances = 40000;
+        dpr = [1, 1]; // Lower DPR for small mobile
       } else if (windowWidth < 800) {
         zoomDistance = 100;
         planeSize = 400;
-        grassInstances = 100000; 
+        grassInstances = 100000;
+        dpr = [1, 1]; // Lower DPR for tablets
       } 
       else if (windowWidth < 1000) {
         zoomDistance = 110;
@@ -82,17 +86,21 @@ export function AqiVisualiser({
         grassInstances = 150000; 
       } else if (windowWidth < 1200) {
         zoomDistance = 95;
+        planeSize = 800;
         grassInstances = 300000; 
       } else if (windowWidth < 1920) {
         zoomDistance = 70;
+        planeSize = 800;
         grassInstances = 500000; 
       } else {
         zoomDistance = 55;
+        planeSize = 800;
         grassInstances = 750000;
       }
       
       setCameraPosition([0, 0, zoomDistance]);
       setTerrainConfig({ planeSize, grassInstances });
+      setDevicePixelRatio(dpr);
     };
 
     updateCameraPosition();
@@ -214,10 +222,11 @@ export function AqiVisualiser({
               antialias: false, // Disabled for better mobile performance
               alpha: false,
               powerPreference: "high-performance",
-              stencil: false, // Disable stencil buffer
+              stencil: false, // Disable stencil buffer: not required for this scene, reduces memory usage and can improve performance,
+                              // especially on mobile devices. Enables faster context creation and lower GPU resource consumption.
               depth: true,
             }}
-            dpr={window.innerWidth < 768 ? [1, 1] : [1, 1.5]} // Lower pixel ratio on mobile
+            dpr={devicePixelRatio} // Reactive pixel ratio based on device size
             performance={{ min: 0.5 }} // Allow lower frame rates on slow devices
           >
             <fog attach="fog" args={[0xcccccc, 200, 600]} />
