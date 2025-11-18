@@ -49,19 +49,19 @@ describe('FindDataForNearestStationForm', () => {
     expect(screen.getByRole('button')).toBeInTheDocument()
   })
 
-  it('shows "Show Map" button when map is not visible', () => {
+  it('shows "Choose Location" button when map is not visible', () => {
     render(<FindDataForNearestStationForm {...mockProps} />)
     
     const mapButton = screen.getByRole('button')
-    expect(mapButton).toHaveTextContent(/show map/i)
+    expect(mapButton).toHaveTextContent(/Choose Location/i)
   })
 
-  it('shows "Hide Map" button when map is visible', () => {
+  it('shows "View Air Quality" button when map is visible', () => {
     const propsWithVisibleMap = { ...mockProps, mapVisible: true }
     render(<FindDataForNearestStationForm {...propsWithVisibleMap} />)
     
     const mapButton = screen.getByRole('button')
-    expect(mapButton).toHaveTextContent(/hide map/i)
+    expect(mapButton).toHaveTextContent(/View Air Quality/i)
   })
 
   it('calls onToggleMap when button is clicked', async () => {

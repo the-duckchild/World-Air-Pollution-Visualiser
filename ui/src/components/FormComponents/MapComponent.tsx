@@ -102,7 +102,7 @@ export function MapComponent({
             minZoom={2.5}
             zoom={hasValidCoordinates ? 7 : 1}
             scrollWheelZoom={true}
-            style={{ width: "100%", height: "100%", borderRadius: "25px" }}
+            style={{ width: "100%", height: "100%" }}
           >
         <TileLayer
           id="tileLayer"

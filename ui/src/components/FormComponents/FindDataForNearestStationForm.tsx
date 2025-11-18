@@ -78,7 +78,7 @@ export function FindDataForNearestStationForm({
           {/* Action button */}
           <div className="flex gap-2 sm:w-auto w-full">
             <button
-              className={`px-3 py-1.5 portrait:px-2.5 portrait:py-1 text-white rounded-md text-xs portrait:text-xs font-medium flex-1 sm:flex-none sm:w-28 portrait:w-full ${
+              className={`px-3 py-1.5 portrait:px-2.5 portrait:py-1 text-white rounded-md text-xs portrait:text-xs font-medium flex-1 sm:flex-none sm:w-28 portrait:w-full whitespace-nowrap ${
                 mapVisible
                   ? "bg-red-600 hover:bg-red-700"
                   : "bg-blue-600 hover:bg-blue-700"
@@ -86,8 +86,8 @@ export function FindDataForNearestStationForm({
               type="button"
               onClick={onToggleMap}
             >
-              <span className="portrait:hidden">{mapVisible ? "Hide Map" : "Show Map"}</span>
-              <span className="hidden portrait:inline">{mapVisible ? "Hide Map" : "Select Location"}</span>
+              <span className="portrait:hidden">{mapVisible ? "View Air Quality" : "Choose Location"}</span>
+              <span className="hidden portrait:inline">{mapVisible ? "View Air Quality" : "Choose Location"}</span>
             </button>
           </div>
         </div>

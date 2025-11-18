@@ -216,8 +216,11 @@ export function AqiVisualiser({
             height: "45vh",
             border: "5px solid #ffffff",
             borderRadius: "25px",
+            overflow: "hidden",
+            backgroundColor: "#ffffff",
           }}>
           <Canvas
+            style={{ display: "block" }}
             gl={{
               antialias: false, // Disabled for better mobile performance
               alpha: false,
