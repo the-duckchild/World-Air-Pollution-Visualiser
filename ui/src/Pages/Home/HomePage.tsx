@@ -1,8 +1,7 @@
 import { useState, useEffect } from "react";
-
 import { TickerTape } from "../.././components/TickerTape";
 import AqiFiguresDisplay from "../.././components/AqiFiguresDisplay";
-import { AqiVisualiser } from "../../components/AqiVisualiser/AqiVisualiser";
+import { AqiVisualiserMemo as AqiVisualiser } from "../../components/AqiVisualiser/AqiVisualiser";
 import type { AirQualityDataSetDto, Iaqi } from "../.././Api/ApiClient";
 import {
   FindDataForNearestStationForm,

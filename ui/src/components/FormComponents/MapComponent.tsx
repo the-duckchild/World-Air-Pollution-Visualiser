@@ -1,4 +1,4 @@
-import { type JSX, useState, useEffect } from "react";
+import { type JSX, useState, useEffect, useCallback, useRef } from "react";
 import { LocationMarkerMap } from "./LocationMarkerMap";
 import { MapContainer, TileLayer } from "react-leaflet";
 import { latLng, LatLng } from "leaflet";
@@ -32,6 +32,9 @@ export function MapComponent({
     hasValidCoordinates ? initialCoordinates.Longitude : LONDON_COORDS.Longitude,
   ]);
 
+  // Debounce timer ref
+  const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
+
   // Update position when initialCoordinates changes
   useEffect(() => {
     if (
@@ -42,23 +45,36 @@ export function MapComponent({
     }
   }, [initialCoordinates]);
 
-  // Auto-submit when map position changes
-  const handleMapPositionChange = (pos: LatLng) => {
+  // Cleanup debounce timer on unmount
+  useEffect(() => {
+    return () => {
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
+      }
+    };
+  }, []);
+
+  // Auto-submit when map position changes (debounced)
+  const handleMapPositionChange = useCallback((pos: LatLng) => {
     setPosition([pos.lat, pos.lng]);
 
-    // Create the data object and submit immediately
-    const formData: LongLat = {
-      Latitude: parseFloat(pos.lat.toFixed(5)),
-      Longitude: parseFloat(pos.lng.toFixed(5)),
-    };
-
-    // Submit the form automatically
-    if (onCoordinatesChange) {
-      onCoordinatesChange(formData);
+    // Clear existing timer
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current);
     }
 
-    // Map remains visible - user must click "Hide Map" to close it
-  };
+    // Debounce the API call to avoid excessive requests while dragging
+    debounceTimerRef.current = setTimeout(() => {
+      const formData: LongLat = {
+        Latitude: parseFloat(pos.lat.toFixed(5)),
+        Longitude: parseFloat(pos.lng.toFixed(5)),
+      };
+
+      if (onCoordinatesChange) {
+        onCoordinatesChange(formData);
+      }
+    }, 500); // Wait 500ms after user stops dragging
+  }, [onCoordinatesChange]);
 
   return (
     <>

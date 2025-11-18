@@ -1,7 +1,7 @@
 import { PerspectiveCamera, OrbitControls, Edges } from "@react-three/drei";
 import type { OrbitControls as OrbitControlsImpl } from "three-stdlib";
 import type { Iaqi } from "../../Api/ApiClient";
-import { useEffect, useRef, useState, useMemo } from "react";
+import { useEffect, useRef, useState, useMemo, memo } from "react";
 import { ParticleSystem } from "./ParticleSystems";
 import { Canvas } from "@react-three/fiber";
 import * as THREE from "three";
@@ -59,7 +59,7 @@ export function AqiVisualiser({
 
       let zoomDistance = 60; 
       let planeSize = 800;
-      let grassInstances = 750000;
+      let grassInstances = 400000; // Reduced from 750k for better performance
 
  
       if (isPortrait) {
@@ -69,21 +69,26 @@ export function AqiVisualiser({
 
       if (windowWidth < 600) {
         zoomDistance = 125;
-        planeSize = 400;
-        grassInstances = 20000;
+        planeSize = 300;
+        grassInstances = 40000; // Very low for small mobile devices
       } else if (windowWidth < 800) {
         zoomDistance = 100;
-        planeSize = 500;
-        grassInstances = 40000;
+        planeSize = 400;
+        grassInstances = 100000; // Low for tablets/medium phones
       } 
       else if (windowWidth < 1000) {
         zoomDistance = 110;
+        planeSize = 500;
+        grassInstances = 150000; // Moderate for smaller desktops
       } else if (windowWidth < 1200) {
         zoomDistance = 95;
+        grassInstances = 300000; // Medium for standard desktops
       } else if (windowWidth < 1920) {
-        zoomDistance = 70; 
+        zoomDistance = 70;
+        grassInstances = 500000; // Higher for larger screens
       } else {
-        zoomDistance = 55; 
+        zoomDistance = 55;
+        grassInstances = 750000; // Full quality for large displays
       }
       
       setCameraPosition([0, 0, zoomDistance]);
@@ -206,12 +211,15 @@ export function AqiVisualiser({
           }}>
           <Canvas
             gl={{
-              antialias: false,
+              antialias: false, // Disabled for better mobile performance
               alpha: false,
               powerPreference: "high-performance",
+              stencil: false, // Disable stencil buffer
+              depth: true,
             }}
-            dpr={[1, 1.5]}
-            performance={{ min: 0.8 }}>
+            dpr={window.innerWidth < 768 ? [1, 1] : [1, 1.5]} // Lower pixel ratio on mobile
+            performance={{ min: 0.5 }} // Allow lower frame rates on slow devices
+          >
             <fog attach="fog" args={[0xcccccc, 200, 600]} />
             <Sun longitude={longitude} latitude={latitude} />
             <ambientLight color={0xffffff} intensity={0.3} />
@@ -220,7 +228,7 @@ export function AqiVisualiser({
               enableDamping
               dampingFactor={0.05}
               minPolarAngle={0}
-              maxPolarAngle={Math.PI * 0.551}
+              maxPolarAngle={Math.PI * 0.53}
               minDistance={10}
               maxDistance={200}
             />
@@ -309,4 +317,7 @@ export function AqiVisualiser({
       </div>
     </>
   );
-};
+}
+
+// Export memoized version to prevent unnecessary re-renders
+export const AqiVisualiserMemo = memo(AqiVisualiser);
