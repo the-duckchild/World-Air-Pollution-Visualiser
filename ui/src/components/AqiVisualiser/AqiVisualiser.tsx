@@ -59,7 +59,7 @@ export function AqiVisualiser({
 
       let zoomDistance = 60; 
       let planeSize = 800;
-      let grassInstances = 400000; // Reduced from 750k for better performance
+      let grassInstances = 400000; 
 
  
       if (isPortrait) {
@@ -70,25 +70,25 @@ export function AqiVisualiser({
       if (windowWidth < 600) {
         zoomDistance = 125;
         planeSize = 300;
-        grassInstances = 40000; // Very low for small mobile devices
+        grassInstances = 40000; 
       } else if (windowWidth < 800) {
         zoomDistance = 100;
         planeSize = 400;
-        grassInstances = 100000; // Low for tablets/medium phones
+        grassInstances = 100000; 
       } 
       else if (windowWidth < 1000) {
         zoomDistance = 110;
         planeSize = 500;
-        grassInstances = 150000; // Moderate for smaller desktops
+        grassInstances = 150000; 
       } else if (windowWidth < 1200) {
         zoomDistance = 95;
-        grassInstances = 300000; // Medium for standard desktops
+        grassInstances = 300000; 
       } else if (windowWidth < 1920) {
         zoomDistance = 70;
-        grassInstances = 500000; // Higher for larger screens
+        grassInstances = 500000; 
       } else {
         zoomDistance = 55;
-        grassInstances = 750000; // Full quality for large displays
+        grassInstances = 750000;
       }
       
       setCameraPosition([0, 0, zoomDistance]);
