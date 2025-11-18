@@ -9,10 +9,12 @@ builder.Logging.ClearProviders();
 builder.Logging.AddConsole();
 builder.Logging.SetMinimumLevel(LogLevel.Information);
 
-var logger = LoggerFactory.Create(config => 
-{
-    config.AddConsole();
-}).CreateLogger("Startup");
+var logger = LoggerFactory
+    .Create(config =>
+    {
+        config.AddConsole();
+    })
+    .CreateLogger("Startup");
 
 logger.LogInformation("=== Application Starting ===");
 
@@ -20,8 +22,8 @@ var AllowSpecificOrigins = "_AllowSpecificOrigins";
 
 // CRITICAL: Configure to listen on the PORT environment variable for Cloud Run
 // In development, use port 5090; in production, use PORT env var (Cloud Run provides 8080)
-var port = builder.Environment.IsDevelopment() 
-    ? "5090" 
+var port = builder.Environment.IsDevelopment()
+    ? "5090"
     : (Environment.GetEnvironmentVariable("PORT") ?? "8080");
 logger.LogInformation($"Configuring to listen on port: {port}");
 builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
@@ -34,10 +36,7 @@ builder.Services.AddCors(options =>
             name: AllowSpecificOrigins,
             policy =>
             {
-                policy
-                    .WithOrigins("http://localhost:5173")
-                    .AllowAnyMethod()
-                    .AllowAnyHeader();
+                policy.WithOrigins("http://localhost:5173").AllowAnyMethod().AllowAnyHeader();
             }
         );
     }
@@ -109,14 +108,8 @@ app.UseRateLimiting();
 
 app.UseCors(AllowSpecificOrigins);
 
-// Don't use HTTPS redirection - Cloud Run handles HTTPS termination
-// if (!app.Environment.IsDevelopment())
-// {
-//     app.UseHttpsRedirection();
-// }
-
 app.UseAuthorization();
-
+app.UseMiddleware<SecurityHeadersMiddleware>();
 app.MapControllers();
 
 logger.LogInformation($"=== Starting server on http://0.0.0.0:{port} ===");
