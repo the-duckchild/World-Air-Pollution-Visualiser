@@ -123,7 +123,7 @@ const HomePage = () => {
       {/* Location Permission Dialog - rendered outside main container to appear above everything */}
       <Dialog
         open={showLocationDialog}
-        onOpenChange={(open) => {
+        onOpenChange={(open: boolean) => {
           if (!open) {
             declineLocationPermission();
           } else {
