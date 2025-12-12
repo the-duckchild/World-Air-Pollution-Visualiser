@@ -97,13 +97,13 @@ const AqiFigures: React.FC<AqiFiguresDisplayProps> = ({
     <Card className="p-3 md:p-2 max-w-6xl mx-auto w-full scale-90">
       {/* Header: Title, Location, and Time - combined on small landscape screens */}
       <div className="flex flex-col small-landscape-inline-header">
-        <h3 className="font-bold text-xs sm:text-sm lg:text-base ml-2 small-landscape-header-text">AQI Data</h3>
-        
+        <h3 className="font-bold text-xs sm:text-sm lg:text-base small-landscape-header-text">AQI Data</h3>
+        <div className="text-base text-gray-700 mt-2">Controls below toggle visualisation of available pollutant data</div>
         {/* Location and time - shown inline on small landscape screens */}
         {currentLongLat.Latitude !== 0 && currentLongLat.Longitude !== 0 && (
           <div className="hidden small-landscape-compact items-center gap-4 text-xs">
-            <div className="font-medium text-gray-700">
-              <span className="text-gray-600">Location:</span> {aqiForClosestStation?.data?.city?.name || 'Loading...'}
+            <div className="font-medium text-gray-700 ml-2">
+              <span className="text-gray-600 ">Location:</span> {aqiForClosestStation?.data?.city?.name || 'Loading...'}
             </div>
             {currentTime && (
               <div className="font-medium text-gray-700">Local Time: {currentTime}</div>
