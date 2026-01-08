@@ -68,8 +68,6 @@ export interface So2 {
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5090';
 
-// Log the API URL for debugging
-console.log('API_URL configured as:', API_URL);
 
 export async function getAqiFiguresByLatLon(lat: number, lon: number): Promise<AirQualityDataSetDto> {
     const response = await fetch(`${API_URL}/air-quality-data-by-latlon/${lat}/${lon}`);
