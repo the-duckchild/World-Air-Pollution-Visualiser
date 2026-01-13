@@ -164,8 +164,8 @@ const AqiFigures: React.FC<AqiFiguresDisplayProps> = ({
                   }}
                 >
                   {/* Desktop: Label on top, mobile/small landscape: Label on left with fixed width */}
-                  <div className="flex items-center justify-between w-full md:flex-row portrait:w-20 portrait:shrink-0 portrait:justify-start small-landscape-label-container">
-                    <div className="portrait:w-full portrait:overflow-hidden portrait:relative portrait:h-[18px] small-landscape-label-text">
+                  <div className="flex items-center justify-between w-full md:flex-row portrait:w-20 portrait:shrink-0 portrait:justify-start portrait:h-full small-landscape-label-container">
+                    <div className="portrait:w-full portrait:overflow-hidden portrait:relative portrait:flex portrait:items-center portrait:h-full small-landscape-label-text">
                       <Label
                         htmlFor={config.key}
                         className="cursor-pointer font-semibold portrait:text-xs portrait:whitespace-nowrap small-landscape-label"
@@ -215,9 +215,9 @@ const AqiFigures: React.FC<AqiFiguresDisplayProps> = ({
                     </div>
                     
                     {/* Quality label - below on desktop, inline on mobile/small landscape */}
-                    <div className="flex-1 portrait:pt-1 min-w-0 flex items-center portrait:overflow-hidden portrait:relative portrait:h-3.5 small-landscape-quality">
+                    <div className="flex-1 portrait:pt-0 min-w-0 flex items-center portrait:overflow-visible portrait:relative small-landscape-quality">
                       {isAvailable && pollutantData ? (
-                        <div className="text-xs portrait:text-xs text-gray-600 leading-tight portrait:whitespace-nowrap wrap-break-word">
+                        <div className="text-xs portrait:text-xs text-gray-600 leading-tight portrait:break-words portrait:max-w-full">
                           {getAirQualityLevel(pollutantData.v).label}
                         </div>
                       ) : (

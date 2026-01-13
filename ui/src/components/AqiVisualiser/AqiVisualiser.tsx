@@ -154,16 +154,18 @@ export function AqiVisualiser({
   return (
     <>
       <div style={{ position: "relative" }}>
-        {/* Legend - bottom left */}
+        {/* Legend - responsive positioning and layout */}
         {!isLoading && (
           <div
+            className="legend-container"
             style={{
               position: "absolute",
-              bottom: "20px",
+              bottom: "10px",
               right: "20px",
+              left: "auto",
               backgroundColor: "rgba(255, 255, 255, 0.45)",
               backdropFilter: "blur(10px)",
-              padding: "var(--spacing-md)",
+              padding: "var(--spacing-sm)",
               borderRadius: "8px",
               boxShadow: "0 2px 8px rgba(0, 0, 0, 0.15)",
               zIndex: 1000,
@@ -171,8 +173,9 @@ export function AqiVisualiser({
             }}
           >
             <h4
+              className="legend-title"
               style={{
-                margin: "0 0 var(--spacing-sm) 0",
+                margin: "0 0 var(--spacing-xs) 0",
                 fontSize: "var(--font-size-sm)",
                 fontWeight: "600",
                 color: "#2c2c2c",
@@ -181,7 +184,14 @@ export function AqiVisualiser({
             >
               Active Pollutants
             </h4>
-            <div style={{ display: "flex", flexDirection: "column", gap: "var(--spacing-xs)" }}>
+            <div 
+              className="legend-grid"
+              style={{ 
+                display: "grid",
+                gridTemplateColumns: "repeat(1, 1fr)",
+                gap: "var(--spacing-xs)"
+              }}
+            >
               {PARTICLE_CONFIGS.filter(config => enabledSystems[config.key] && particleCounts[config.key] > 0).map((config) => (
                 <div
                   key={config.key}
@@ -193,8 +203,8 @@ export function AqiVisualiser({
                 >
                   <div
                     style={{
-                      width: "16px",
-                      height: "16px",
+                      width: "14px",
+                      height: "14px",
                       backgroundColor: config.color,
                       borderRadius: "3px",
                       flexShrink: 0,
@@ -202,6 +212,7 @@ export function AqiVisualiser({
                     }}
                   />
                   <span
+                    className="legend-label"
                     style={{
                       fontSize: "var(--font-size-sm)",
                       color: "#2c2c2c",
@@ -225,6 +236,26 @@ export function AqiVisualiser({
                 </span>
               )}
             </div>
+            <style>{`
+              @media (max-width: 768px) {
+                .legend-container {
+                  left: 15px !important;
+                  right: 15px !important;
+                  bottom: 10px !important;
+                  min-width: auto !important;
+                  width: calc(100% - 30px) !important;
+                }
+                .legend-title {
+                  display: none !important;
+                }
+                .legend-grid {
+                  grid-template-columns: repeat(3, 1fr) !important;
+                }
+                .legend-label {
+                  font-size: 0.7rem !important;
+                }
+              }
+            `}</style>
           </div>
         )}
         

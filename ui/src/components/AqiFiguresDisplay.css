@@ -42,15 +42,16 @@
     justify-content: flex-start;
     align-items: center;
     display: flex;
+    height: 100%;
   }
   
   .small-landscape-label-text {
     width: 100%;
     overflow: hidden;
     position: relative;
-    height: auto;
     display: flex;
     align-items: center;
+    height: 100%;
   }
   
   .small-landscape-label {
@@ -74,11 +75,13 @@
     gap: 0.375rem;
     flex: 1;
     justify-content: flex-end;
+    min-width: 0;
   }
   
   .small-landscape-traffic-light {
     width: 1rem;
     height: 1rem;
+    flex-shrink: 0;
   }
   
   .small-landscape-value {
@@ -90,18 +93,21 @@
   }
   
   .small-landscape-quality {
-    overflow: hidden;
     position: relative;
-    height: 0.875rem;
     font-size: var(--font-size-sm);
     line-height: var(--line-height-normal);
-    white-space: nowrap;
+    word-wrap: break-word;
+    word-break: break-word;
+    flex: 1;
+    min-width: 0;
+    max-width: 100%;
   }
   
   .small-landscape-switch {
     display: inline-flex;
     transform: scale(0.75);
     flex-shrink: 0;
+    margin-left: auto;
   }
   
   .small-landscape-header-text {
