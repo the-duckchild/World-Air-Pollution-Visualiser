@@ -57,7 +57,8 @@ export function CustomVisualizationLoader({
       <h3 
         style={{
           color: "#495057",
-          fontSize: "18px",
+          fontSize: "var(--font-size-lg)",
+          lineHeight: "var(--line-height-tight)",
           fontWeight: "600",
           margin: "0 0 8px 0",
           textAlign: "center",
@@ -69,7 +70,8 @@ export function CustomVisualizationLoader({
       <p 
         style={{
           color: "#6c757d",
-          fontSize: "14px",
+          fontSize: "var(--font-size-sm)",
+          lineHeight: "var(--line-height-normal)",
           margin: "0 0 16px 0",
           textAlign: "center",
         }}
@@ -95,7 +97,8 @@ export function CustomVisualizationLoader({
       
       <p style={{
         color: "#6c757d",
-        fontSize: "12px",
+        fontSize: "var(--font-size-sm)",
+        lineHeight: "var(--line-height-normal)",
         margin: "8px 0 0 0"
       }}>
         {Math.round(Math.max(progress, 20))}%
