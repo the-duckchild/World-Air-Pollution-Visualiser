@@ -106,10 +106,4 @@ World Air Pollution Visualiser is a full-stack web application for exploring and
 - **Map & Visuals**:  
   - Tweak defaults and behaviour in `ui/src/Pages/Home/HomePage.tsx` and `ui/src/components/AqiVisualiser/AqiVisualiser.tsx`.
 
-## License
-
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
-
----
-
 **Contributions, bug reports, and feature requests welcome!**
