@@ -160,6 +160,19 @@ export function AqiVisualiser({
           <figure
             className="legend-container"
             style={{
+              position: "absolute",
+              bottom: "10px",
+              right: "20px",
+              left: "auto",
+              backgroundColor: "rgba(255, 255, 255, 0.45)",
+              backdropFilter: "blur(10px)",
+              padding: "var(--spacing-sm)",
+              borderRadius: "8px",
+              boxShadow: "0 2px 8px rgba(0, 0, 0, 0.15)",
+              zIndex: 1000,
+              minWidth: "180px",
+              margin: 0,
+            }}
           >
             <figcaption
               className="legend-title"
