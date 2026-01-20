@@ -81,13 +81,13 @@
   --radius-xl: calc(var(--radius) + 4px);
   
   /* Font sizes - integrate with our typography scale */
-  --font-size-xs: var(--font-size-sm);      /* 0.875rem / 14px */
-  --font-size-sm: var(--font-size-sm);      /* 0.875rem / 14px */
-  --font-size-base: var(--font-size-base);  /* 1rem / 16px */
-  --font-size-lg: var(--font-size-lg);      /* 1.125rem / 18px */
-  --font-size-xl: 1.25rem;                   /* 20px */
-  --font-size-2xl: 1.5rem;                   /* 24px */
-  --text-tiny: var(--font-size-sm);         /* Use sm instead of 0.5rem */
+  --font-size-xs: 0.875rem;      /* 14px */
+  --font-size-sm: 0.875rem;      /* 14px */
+  --font-size-base: 1rem;        /* 16px */
+  --font-size-lg: 1.125rem;      /* 18px */
+  --font-size-xl: 1.25rem;       /* 20px */
+  --font-size-2xl: 1.5rem;       /* 24px */
+  --text-tiny: 0.875rem;         /* 14px */
   
   /* Line heights - integrate with our line-height scale */
   --line-height-tight: 1.25;     /* 1.25 */
