@@ -128,6 +128,6 @@
     grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));
   }
   .legend-label {
-    font-size: var(--font-size-xs);
+    font-size: var(--font-size-sm);
   }
 }
