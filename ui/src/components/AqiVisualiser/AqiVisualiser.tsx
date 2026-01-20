@@ -247,7 +247,6 @@ export function AqiVisualiser({
                 );
               })()}
             </div>
-            {/* Styles moved to AqiVisualiser.css */}
           </figure>
         )}
         
