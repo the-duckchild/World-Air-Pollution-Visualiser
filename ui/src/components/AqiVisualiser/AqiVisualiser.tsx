@@ -166,9 +166,7 @@ export function AqiVisualiser({
             >
               Active Pollutants
             </figcaption>
-            <div 
-              className="legend-grid"
-            >
+            <div className="legend-grid">
               {(() => {
                 const activeParticleConfigs = PARTICLE_CONFIGS.filter(
                   (config) => enabledSystems[config.key] && particleCounts[config.key] > 0
@@ -179,39 +177,20 @@ export function AqiVisualiser({
                     {activeParticleConfigs.length > 0 && (
                       <ul
                         aria-label="Active pollutants legend"
-                        style={{
-                          listStyle: "none",
-                          margin: 0,
-                          padding: 0,
-                        }}
+                        className="legend-list"
                       >
                         {activeParticleConfigs.map((config) => (
                           <li
                             key={config.key}
-                            style={{
-                              display: "flex",
-                              alignItems: "center",
-                              gap: "var(--spacing-xs)",
-                            }}
+                            className="legend-item"
                           >
                             <div
+                              className="legend-color-box"
                               style={{
-                                width: "14px",
-                                height: "14px",
                                 backgroundColor: config.color,
-                                borderRadius: "3px",
-                                flexShrink: 0,
-                                border: "1px solid rgba(0, 0, 0, 0.1)",
                               }}
                             />
-                            <span
-                              className="legend-label"
-                              style={{
-                                fontSize: "var(--font-size-sm)",
-                                color: "#2c2c2c",
-                                lineHeight: "var(--line-height-normal)",
-                              }}
-                            >
+                            <span className="legend-label">
                               {config.shortLabel}
                             </span>
                           </li>
@@ -219,14 +198,7 @@ export function AqiVisualiser({
                       </ul>
                     )}
                     {activeParticleConfigs.length === 0 && (
-                      <span
-                        style={{
-                          fontSize: "var(--font-size-sm)",
-                          color: "#666",
-                          fontStyle: "italic",
-                          lineHeight: "var(--line-height-normal)",
-                        }}
-                      >
+                      <span className="legend-no-pollutants">
                         No Pollutants active
                       </span>
                     )}
@@ -239,69 +211,18 @@ export function AqiVisualiser({
         
         {/* Loading overlay */}
         {isLoading && (
-          <div
-            style={{
-              position: "absolute",
-              top: 0,
-              left: 0,
-              width: "75vw",
-              height: "45vh",
-              border: "5px solid #ffffff",
-              borderRadius: "25px",
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              justifyContent: "center",
-              backgroundColor: "rgba(248, 249, 250, 0.95)",
-              zIndex: 900,
-              backdropFilter: "blur(2px)",
-            }}>
-            <div
-              style={{
-                width: "60px",
-                height: "60px",
-                border: "4px solid #e9ecef",
-                borderTop: "4px solid #007bff",
-                borderRadius: "50%",
-                animation: "spin 1s linear infinite",
-                marginBottom: "20px",
-              }}
-            />
-            <h3
-              style={{
-                color: "#495057",
-                fontSize: "var(--font-size-lg)",
-                lineHeight: "var(--line-height-tight)",
-                fontWeight: "600",
-                margin: "0 0 8px 0",
-              }}>
+          <div className="loading-overlay">
+            <div className="loading-spinner" />
+            <h3 className="loading-heading">
               Loading Air Quality Visualisation
             </h3>
-            <p
-              style={{
-                color: "#6c757d",
-                fontSize: "var(--font-size-sm)",
-                lineHeight: "var(--line-height-normal)",
-                margin: 0,
-              }}>
+            <p className="loading-text">
               Preparing environment...
             </p>
-            <style>{`
-              @keyframes spin {
-                0% { transform: rotate(0deg); }
-                100% { transform: rotate(360deg); }
-              }
-            `}</style>
           </div>
         )}
 
-        <div
-          style={{
-            width: "75vw",
-            height: "45vh",
-            border: "5px solid #ffffff",
-            borderRadius: "25px",
-          }}>
+        <div className="canvas-container">
           <Canvas
             gl={{
               antialias: false, // Disabled for better mobile performance
