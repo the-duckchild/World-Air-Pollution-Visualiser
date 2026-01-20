@@ -159,7 +159,6 @@ export function AqiVisualiser({
         {!isLoading && (
           <figure
             className="legend-container"
-            aria-label="Air quality pollutants legend"
           >
             <figcaption
               className="legend-title"
