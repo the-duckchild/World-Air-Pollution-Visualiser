@@ -193,49 +193,59 @@ export function AqiVisualiser({
                 gap: "var(--spacing-xs)"
               }}
             >
-              {PARTICLE_CONFIGS.filter(config => enabledSystems[config.key] && particleCounts[config.key] > 0).map((config) => (
-                <div
-                  key={config.key}
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "var(--spacing-xs)",
-                  }}
-                >
-                  <div
-                    style={{
-                      width: "14px",
-                      height: "14px",
-                      backgroundColor: config.color,
-                      borderRadius: "3px",
-                      flexShrink: 0,
-                      border: "1px solid rgba(0, 0, 0, 0.1)",
-                    }}
-                  />
-                  <span
-                    className="legend-label"
-                    style={{
-                      fontSize: "var(--font-size-sm)",
-                      color: "#2c2c2c",
-                      lineHeight: "var(--line-height-normal)",
-                    }}
-                  >
-                    {config.shortLabel}
-                  </span>
-                </div>
-              ))}
-              {PARTICLE_CONFIGS.filter(config => enabledSystems[config.key] && particleCounts[config.key] > 0).length === 0 && (
-                <span
-                  style={{
-                    fontSize: "var(--font-size-sm)",
-                    color: "#666",
-                    fontStyle: "italic",
-                    lineHeight: "var(--line-height-normal)",
-                  }}
-                >
-                  No Pollutants active
-                </span>
-              )}
+              {(() => {
+                const activeParticleConfigs = PARTICLE_CONFIGS.filter(
+                  (config) => enabledSystems[config.key] && particleCounts[config.key] > 0
+                );
+
+                return (
+                  <>
+                    {activeParticleConfigs.map((config) => (
+                      <div
+                        key={config.key}
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "var(--spacing-xs)",
+                        }}
+                      >
+                        <div
+                          style={{
+                            width: "14px",
+                            height: "14px",
+                            backgroundColor: config.color,
+                            borderRadius: "3px",
+                            flexShrink: 0,
+                            border: "1px solid rgba(0, 0, 0, 0.1)",
+                          }}
+                        />
+                        <span
+                          className="legend-label"
+                          style={{
+                            fontSize: "var(--font-size-sm)",
+                            color: "#2c2c2c",
+                            lineHeight: "var(--line-height-normal)",
+                          }}
+                        >
+                          {config.shortLabel}
+                        </span>
+                      </div>
+                    ))}
+                    {activeParticleConfigs.length === 0 && (
+                      <span
+                        style={{
+                          fontSize: "var(--font-size-sm)",
+                          color: "#666",
+                          fontStyle: "italic",
+                          lineHeight: "var(--line-height-normal)",
+                        }}
+                      >
+                        No Pollutants active
+                      </span>
+                    )}
+                  </>
+                );
+              })()}
             </div>
             {/* Styles moved to AqiVisualiser.css */}
           </div>
