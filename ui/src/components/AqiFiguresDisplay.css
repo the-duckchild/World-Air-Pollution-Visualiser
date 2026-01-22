@@ -145,6 +145,6 @@
     transform: translateX(0);
   }
   90%, 100% {
-    transform: translateX(calc(-100% + 60px));
+    transform: translateX(-100%);
   }
 }
