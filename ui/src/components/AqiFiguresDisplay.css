@@ -148,3 +148,13 @@
     transform: translateX(-100%);
   }
 }
+
+@media (prefers-reduced-motion: reduce) {
+  .quality-label-scroll:hover {
+    animation: none;
+  }
+
+  .quality-label-scroll-container:hover .quality-label-scroll {
+    animation: none;
+  }
+}
