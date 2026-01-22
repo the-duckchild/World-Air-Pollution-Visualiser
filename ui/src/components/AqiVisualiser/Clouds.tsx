@@ -36,8 +36,25 @@ export const CloudPattern = memo(function CloudPattern() {
     const canvasWidthValue = getComputedStyle(document.documentElement)
       .getPropertyValue('--canvas-width')
       .trim();
-    const widthInVw = parseFloat(canvasWidthValue) || 75; // Default to 75vw if not found
-    const initialCanvasWidth = window.innerWidth * (widthInVw / 100);
+    
+    // Parse the value and unit
+    const match = canvasWidthValue.match(/^([\d.]+)(vw|px|rem|%)?$/);
+    let initialCanvasWidth = window.innerWidth * 0.75; // Default fallback
+    
+    if (match) {
+      const value = parseFloat(match[1]);
+      const unit = match[2];
+      
+      if (unit === 'vw') {
+        initialCanvasWidth = window.innerWidth * (value / 100);
+      } else if (unit === 'px') {
+        initialCanvasWidth = value;
+      } else if (unit === '%') {
+        initialCanvasWidth = window.innerWidth * (value / 100);
+      }
+      // For other units or no match, use default fallback
+    }
+    
     // Calculate safe Z range: not behind camera (65) and not in fog (starts at 200)
     const maxSafeZ = Math.min(150, initialCanvasWidth * 0.3); // Scale with canvas width, max 150
     const minSafeZ = -maxSafeZ; // Symmetric range in front of camera
