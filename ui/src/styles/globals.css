@@ -11,13 +11,6 @@
   --line-height-normal: 1.5;     /* For body text */
   --line-height-relaxed: 1.75;   /* For longer content */
   
-  /* Spacing scale */
-  --spacing-xs: 0.5rem;          /* 8px */
-  --spacing-sm: 0.75rem;         /* 12px */
-  --spacing-md: 1rem;            /* 16px */
-  --spacing-lg: 1.5rem;          /* 24px */
-  --spacing-xl: 2rem;            /* 32px */
-  
   --background: #a7a7a7;
   --foreground: oklch(0.145 0 0);
   --card: #ffffff;
