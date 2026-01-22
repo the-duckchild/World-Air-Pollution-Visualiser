@@ -36,11 +36,9 @@ export const CloudPattern = memo(function CloudPattern() {
   // Generate random initial positions and properties for each cloud group
   const [cloudConfigs] = useState(() => {
     // Get initial canvas width for cloud positioning from CSS custom property
-    const canvasWidthValue = document.documentElement
-      ? getComputedStyle(document.documentElement)
-          .getPropertyValue('--canvas-width')
-          .trim()
-      : '';
+    const canvasWidthValue = getComputedStyle(document.documentElement)
+      .getPropertyValue('--canvas-width')
+      .trim();
     
     // Parse the value and unit - expects 'vw' units as defined in CSS
     // Regex ensures valid decimal number format (e.g., "75vw", "75.5vw")
