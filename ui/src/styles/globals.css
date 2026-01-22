@@ -4,10 +4,7 @@
   --font-display: "Tahoma", "sans-serif";
   --font-size: 16px;
   
-  /* Typography scale */
-  --font-size-base: 1rem;        /* 16px - body text */
-  --font-size-sm: 0.875rem;      /* 14px - small text, captions */
-  --font-size-lg: 1.125rem;      /* 18px - headings */
+  /* Typography scale is defined in the @theme block to keep a single source of truth. */
   
   /* Line heights */
   --line-height-tight: 1.25;     /* For headings */
