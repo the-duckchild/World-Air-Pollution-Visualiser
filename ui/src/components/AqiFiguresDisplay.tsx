@@ -217,7 +217,10 @@ const AqiFigures: React.FC<AqiFiguresDisplayProps> = ({
                     {/* Quality label - below on desktop, inline on mobile/small landscape */}
                     <div className="flex-1 portrait:pt-0 min-w-0 flex items-center portrait:overflow-visible portrait:relative small-landscape-quality">
                       {isAvailable && pollutantData ? (
-                        <div className="text-xs portrait:text-xs text-gray-600 leading-tight portrait:break-words portrait:max-w-full portrait:max-h-10 portrait:overflow-hidden">
+                        <div 
+                          className="text-xs portrait:text-xs text-gray-600 leading-tight portrait:truncate portrait:max-w-full"
+                          title={getAirQualityLevel(pollutantData.v).label}
+                        >
                           {getAirQualityLevel(pollutantData.v).label}
                         </div>
                       ) : (
