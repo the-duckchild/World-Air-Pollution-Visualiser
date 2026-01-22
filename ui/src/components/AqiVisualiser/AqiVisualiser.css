@@ -1,3 +1,8 @@
+:root {
+  --canvas-width: 75vw;
+  --canvas-height: 45vh;
+}
+
 .legend-container {
   position: absolute;
   bottom: 10px;
@@ -62,8 +67,8 @@
   position: absolute;
   top: 0;
   left: 0;
-  width: 75vw;
-  height: 45vh;
+  width: var(--canvas-width);
+  height: var(--canvas-height);
   border: 5px solid #ffffff;
   border-radius: 25px;
   display: flex;
@@ -101,8 +106,8 @@
 }
 
 .canvas-container {
-  width: 75vw;
-  height: 45vh;
+  width: var(--canvas-width);
+  height: var(--canvas-height);
   border: 5px solid #ffffff;
   border-radius: 25px;
 }

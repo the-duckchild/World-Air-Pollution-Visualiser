@@ -32,8 +32,12 @@ export const CloudPattern = memo(function CloudPattern() {
 
   // Generate random initial positions and properties for each cloud group
   const [cloudConfigs] = useState(() => {
-    // Get initial canvas width for cloud positioning
-    const initialCanvasWidth = window.innerWidth * 0.75; // 75vw
+    // Get initial canvas width for cloud positioning from CSS custom property
+    const canvasWidthValue = getComputedStyle(document.documentElement)
+      .getPropertyValue('--canvas-width')
+      .trim();
+    const widthInVw = parseFloat(canvasWidthValue) || 75; // Default to 75vw if not found
+    const initialCanvasWidth = window.innerWidth * (widthInVw / 100);
     // Calculate safe Z range: not behind camera (65) and not in fog (starts at 200)
     const maxSafeZ = Math.min(150, initialCanvasWidth * 0.3); // Scale with canvas width, max 150
     const minSafeZ = -maxSafeZ; // Symmetric range in front of camera
