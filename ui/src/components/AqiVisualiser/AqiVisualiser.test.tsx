@@ -63,10 +63,28 @@ const mockEnabledSystems = {
   so2: false
 }
 
+const mockAllDisabledSystems = {
+  aqi: false,
+  pm25: false,
+  pm10: false,
+  co: false,
+  co2: false,
+  no2: false,
+  so2: false
+}
+
 describe('AqiVisualiser', () => {
   beforeEach(() => {
     vi.clearAllMocks()
   })
+
+  /**
+   * Helper function to advance time and wait for loading state to complete
+   */
+  const waitForLoadingComplete = async (rerender: () => void) => {
+    await vi.advanceTimersByTimeAsync(1500)
+    rerender()
+  }
 
   it('renders the Canvas component', () => {
     render(
@@ -211,5 +229,150 @@ describe('AqiVisualiser', () => {
     
     // Should render without errors even when overallAqi is undefined
     expect(screen.getByTestId('three-canvas')).toBeInTheDocument()
+  })
+
+  describe('Legend', () => {
+    it('is not visible during loading state', () => {
+      render(
+        <AqiVisualiser
+          data={mockIaqi}
+          overallAqi={65}
+          enabledSystems={mockEnabledSystems}
+        />
+      )
+      
+      // Legend should not be visible during initial loading
+      expect(screen.queryByText('Active Pollutants')).not.toBeInTheDocument()
+    })
+
+    it('displays active pollutants correctly after loading', async () => {
+      vi.useFakeTimers()
+      
+      const { rerender } = render(
+        <AqiVisualiser
+          data={mockIaqi}
+          overallAqi={65}
+          enabledSystems={mockEnabledSystems}
+        />
+      )
+      
+      // Wait for loading to complete
+      await waitForLoadingComplete(() =>
+        rerender(
+          <AqiVisualiser
+            data={mockIaqi}
+            overallAqi={65}
+            enabledSystems={mockEnabledSystems}
+          />
+        )
+      )
+      
+      // Legend title should be visible
+      expect(screen.getByText('Active Pollutants')).toBeInTheDocument()
+      
+      // Active pollutants should be displayed (pm25 and aqi are enabled)
+      expect(screen.getByText('PM2.5')).toBeInTheDocument()
+      expect(screen.getByText('AQI')).toBeInTheDocument()
+      
+      // Inactive pollutants should not be displayed
+      expect(screen.queryByText('PM10')).not.toBeInTheDocument()
+      expect(screen.queryByText('CO')).not.toBeInTheDocument()
+      
+      vi.useRealTimers()
+    })
+
+    it('displays "No Pollutants active" when no pollutants are enabled', async () => {
+      vi.useFakeTimers()
+      
+      const { rerender } = render(
+        <AqiVisualiser
+          data={mockIaqi}
+          overallAqi={65}
+          enabledSystems={mockAllDisabledSystems}
+        />
+      )
+      
+      // Wait for loading to complete
+      await waitForLoadingComplete(() =>
+        rerender(
+          <AqiVisualiser
+            data={mockIaqi}
+            overallAqi={65}
+            enabledSystems={mockAllDisabledSystems}
+          />
+        )
+      )
+      
+      // Legend should show the "no pollutants" message
+      expect(screen.getByText('No Pollutants active')).toBeInTheDocument()
+      
+      vi.useRealTimers()
+    })
+
+    it('displays "No Pollutants active" when enabled systems have zero particle count', async () => {
+      vi.useFakeTimers()
+      
+      const zeroDataIaqi: Iaqi = {
+        co: { v: 0 },
+        co2: { v: 0 },
+        no2: { v: 0 },
+        pm10: { v: 0 },
+        pm25: { v: 0 },
+        so2: { v: 0 }
+      }
+      
+      const { rerender } = render(
+        <AqiVisualiser
+          data={zeroDataIaqi}
+          overallAqi={0}
+          enabledSystems={mockEnabledSystems}
+        />
+      )
+      
+      // Wait for loading to complete
+      await waitForLoadingComplete(() =>
+        rerender(
+          <AqiVisualiser
+            data={zeroDataIaqi}
+            overallAqi={0}
+            enabledSystems={mockEnabledSystems}
+          />
+        )
+      )
+      
+      // Legend should show the "no pollutants" message even though some are enabled
+      expect(screen.getByText('No Pollutants active')).toBeInTheDocument()
+      
+      vi.useRealTimers()
+    })
+
+    it('has proper accessibility attributes', async () => {
+      vi.useFakeTimers()
+      
+      const { rerender } = render(
+        <AqiVisualiser
+          data={mockIaqi}
+          overallAqi={65}
+          enabledSystems={mockEnabledSystems}
+        />
+      )
+      
+      // Wait for loading to complete
+      await waitForLoadingComplete(() =>
+        rerender(
+          <AqiVisualiser
+            data={mockIaqi}
+            overallAqi={65}
+            enabledSystems={mockEnabledSystems}
+          />
+        )
+      )
+      
+      // Legend list should have proper aria-label
+      const legendList = screen.getByLabelText('Active pollutants legend')
+      expect(legendList).toBeInTheDocument()
+      
+      vi.useRealTimers()
+    })
   })
 })

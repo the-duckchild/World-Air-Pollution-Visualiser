@@ -1,108 +1,160 @@
 .aqi{
-    border-left: 1px solid var(--white);
-  border-top: 1px solid var(--white);
-  border-left: 1px solid (--white);
-  border-top: 1px solid (--white);
+  border-left: 1px solid #ffffff;
+  border-top: 1px solid #ffffff;
   backdrop-filter: blur(10px);
   box-shadow: 20px 20px 40px -6px rgba(0,0,0,0.2);
 }
 
 /* Small landscape screens (height < 750px) */
 @media (orientation: landscape) and (max-height: 750px) {
-  .small-landscape-compact {
-    display: flex !important;
+  /* Increase specificity by doubling class selector to override Tailwind utilities */
+  .small-landscape-compact.small-landscape-compact {
+    display: flex;
   }
   
-  .small-landscape-hidden {
-    display: none !important;
+  .small-landscape-hidden.small-landscape-hidden {
+    display: none;
   }
   
-  .small-landscape-inline-header {
-    flex-direction: row !important;
-    align-items: center !important;
-    justify-content: space-between !important;
-    gap: 1rem !important;
+  .small-landscape-inline-header.small-landscape-inline-header {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
   }
   
-  .small-landscape-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  .small-landscape-grid.small-landscape-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
   
-  .small-landscape-card {
-    flex-direction: row !important;
-    align-items: center !important;
-    gap: 0.5rem !important;
-    padding: 0.5rem !important;
-    min-height: 0 !important;
+  .small-landscape-card.small-landscape-card {
+    flex-direction: row;
+    align-items: center;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-sm);
+    min-height: 0;
   }
   
-  .small-landscape-label-container {
-    width: 5rem !important;
-    flex-shrink: 0 !important;
-    justify-content: flex-start !important;
-    align-items: center !important;
-    display: flex !important;
+  .small-landscape-label-container.small-landscape-label-container {
+    width: 5rem;
+    flex-shrink: 0;
+    justify-content: flex-start;
+    align-items: center;
+    display: flex;
+    height: 100%;
   }
   
-  .small-landscape-label-text {
-    width: 100% !important;
-    overflow: hidden !important;
-    position: relative !important;
-    height: auto !important;
-    display: flex !important;
-    align-items: center !important;
+  .small-landscape-label-text.small-landscape-label-text {
+    width: 100%;
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    align-items: center;
+    height: 100%;
   }
   
-  .small-landscape-label {
-    font-size: 0.75rem !important;
-    white-space: nowrap !important;
+  .small-landscape-label.small-landscape-label {
+    font-size: var(--font-size-sm);
+    line-height: var(--line-height-normal);
+    white-space: nowrap;
   }
   
   /* Show short label, hide full label */
-  .small-landscape-label-text .small-landscape-label {
-    display: inline !important;
+  .small-landscape-label-text .small-landscape-label.small-landscape-label {
+    display: inline;
   }
   
   .small-landscape-label-text span:not(.small-landscape-label) {
-    display: none !important;
+    display: none;
   }
   
-  .small-landscape-content {
-    flex-direction: row !important;
-    align-items: center !important;
-    gap: 0.375rem !important;
-    flex: 1 !important;
-    justify-content: flex-end !important;
+  .small-landscape-content.small-landscape-content {
+    flex-direction: row;
+    align-items: center;
+    gap: 0.375rem;
+    flex: 1;
+    justify-content: flex-end;
+    min-width: 0;
   }
   
-  .small-landscape-traffic-light {
-    width: 1rem !important;
-    height: 1rem !important;
+  .small-landscape-traffic-light.small-landscape-traffic-light {
+    width: 1rem;
+    height: 1rem;
+    flex-shrink: 0;
   }
   
-  .small-landscape-value {
-    font-size: 0.875rem !important;
-    width: 35px !important;
-    flex-shrink: 0 !important;
-    text-align: right !important;
+  .small-landscape-value.small-landscape-value {
+    font-size: var(--font-size-sm);
+    line-height: var(--line-height-normal);
+    width: 35px;
+    flex-shrink: 0;
+    text-align: right;
   }
   
-  .small-landscape-quality {
-    overflow: hidden !important;
-    position: relative !important;
-    height: 0.875rem !important;
-    font-size: 9px !important;
-    white-space: nowrap !important;
+  .small-landscape-quality.small-landscape-quality {
+    position: relative;
+    font-size: var(--font-size-sm);
+    line-height: var(--line-height-normal);
+    word-wrap: break-word;
+    word-break: break-word;
+    flex: 1;
+    min-width: 0;
+    max-width: 100%;
   }
   
-  .small-landscape-switch {
-    display: inline-flex !important;
-    transform: scale(0.75) !important;
-    flex-shrink: 0 !important;
+  .small-landscape-switch.small-landscape-switch {
+    display: inline-flex;
+    transform: scale(0.75);
+    flex-shrink: 0;
+    margin-left: auto;
   }
   
-  .small-landscape-header-text {
-    font-size: 0.75rem !important;
-    margin-left: 0 !important;
+  .small-landscape-header-text.small-landscape-header-text {
+    font-size: var(--font-size-sm);
+    line-height: var(--line-height-tight);
+    margin-left: 0;
+  }
+}
+
+/* Scrolling text on hover for truncated quality labels */
+.quality-label-scroll {
+  display: inline-block;
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.quality-label-scroll:hover {
+  overflow: visible;
+  animation: scroll-text 3s linear infinite;
+}
+
+.quality-label-scroll-container {
+  overflow: hidden;
+  max-width: 100%;
+}
+
+.quality-label-scroll-container:hover .quality-label-scroll {
+  animation: scroll-text 3s linear infinite;
+  text-overflow: clip;
+}
+
+@keyframes scroll-text {
+  0%, 10% {
+    transform: translateX(0);
+  }
+  90%, 100% {
+    transform: translateX(-100%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .quality-label-scroll:hover {
+    animation: none;
+  }
+
+  .quality-label-scroll-container:hover .quality-label-scroll {
+    animation: none;
   }
 }

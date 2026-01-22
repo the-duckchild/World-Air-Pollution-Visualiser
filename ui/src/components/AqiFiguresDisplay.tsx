@@ -164,8 +164,8 @@ const AqiFigures: React.FC<AqiFiguresDisplayProps> = ({
                   }}
                 >
                   {/* Desktop: Label on top, mobile/small landscape: Label on left with fixed width */}
-                  <div className="flex items-center justify-between w-full md:flex-row portrait:w-20 portrait:shrink-0 portrait:justify-start small-landscape-label-container">
-                    <div className="portrait:w-full portrait:overflow-hidden portrait:relative portrait:h-[18px] small-landscape-label-text">
+                  <div className="flex items-center justify-between w-full md:flex-row portrait:w-20 portrait:shrink-0 portrait:justify-start portrait:h-full small-landscape-label-container">
+                    <div className="portrait:w-full portrait:overflow-hidden portrait:relative portrait:flex portrait:items-center portrait:h-full small-landscape-label-text">
                       <Label
                         htmlFor={config.key}
                         className="cursor-pointer font-semibold portrait:text-xs portrait:whitespace-nowrap small-landscape-label"
@@ -186,9 +186,9 @@ const AqiFigures: React.FC<AqiFiguresDisplayProps> = ({
                   </div>
                   
                   {/* Desktop: Column layout, Mobile/Small Landscape: Row layout */}
-                  <div className="flex flex-col items-center portrait:flex-row gap-2 portrait:gap-1.5 portrait:flex-1 small-landscape-content">
+                  <div className="flex flex-col items-center portrait:flex-row gap-2 portrait:gap-1.5 portrait:flex-1 portrait:min-w-0 portrait:overflow-hidden small-landscape-content">
                     {/* Traffic light and value - row on both desktop and mobile */}
-                    <div className="flex items-center gap-3 portrait:gap-1.5">
+                    <div className="flex items-center gap-3 portrait:gap-1.5 portrait:shrink-0">
                       {/* Circular traffic light indicator */}
                       <div
                         className="shrink-0 rounded-full border w-5 h-5 sm:w-6 sm:h-6 portrait:w-4 portrait:h-4 small-landscape-traffic-light"
@@ -215,9 +215,12 @@ const AqiFigures: React.FC<AqiFiguresDisplayProps> = ({
                     </div>
                     
                     {/* Quality label - below on desktop, inline on mobile/small landscape */}
-                    <div className="flex-1 portrait:pt-1 min-w-0 flex items-center portrait:overflow-hidden portrait:relative portrait:h-3.5 small-landscape-quality">
+                    <div className="flex-1 portrait:pt-0 min-w-0 flex items-center portrait:overflow-hidden small-landscape-quality quality-label-scroll-container">
                       {isAvailable && pollutantData ? (
-                        <div className="text-xs portrait:text-xs text-gray-600 leading-tight portrait:whitespace-nowrap wrap-break-word">
+                        <div 
+                          className="text-xs portrait:text-xs text-gray-600 leading-tight truncate quality-label-scroll"
+                          title={getAirQualityLevel(pollutantData.v).label}
+                        >
                           {getAirQualityLevel(pollutantData.v).label}
                         </div>
                       ) : (

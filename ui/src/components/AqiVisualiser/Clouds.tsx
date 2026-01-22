@@ -30,10 +30,53 @@ export const CloudPattern = memo(function CloudPattern() {
     cloudGroup10,
   ];
 
+  // Default canvas width in viewport width units (must match --canvas-width in CSS)
+  const DEFAULT_CANVAS_WIDTH_VW = 75;
+
   // Generate random initial positions and properties for each cloud group
   const [cloudConfigs] = useState(() => {
-    // Get initial canvas width for cloud positioning
-    const initialCanvasWidth = window.innerWidth * 0.75; // 75vw
+    // NOTE: Cloud positioning depends on the `--canvas-width` CSS custom property.
+    // This code defensively reads the value at runtime and falls back to
+    // DEFAULT_CANVAS_WIDTH_VW if CSS is not yet loaded, the property is missing,
+    // or it uses unexpected units. AqiVisualiser.tsx should import the CSS that
+    // defines `--canvas-width` before this component is initialized.
+
+    const isBrowser =
+      typeof window !== "undefined" && typeof document !== "undefined";
+
+    // Start with a default canvas width in pixels based on DEFAULT_CANVAS_WIDTH_VW.
+    // When not in a browser (e.g. SSR/tests), we use a fixed 1024px viewport width
+    // to avoid touching `window` while keeping the same proportional behavior.
+    const defaultViewportWidth = isBrowser ? window.innerWidth : 1024;
+    let initialCanvasWidth =
+      defaultViewportWidth * (DEFAULT_CANVAS_WIDTH_VW / 100);
+
+    if (isBrowser) {
+      let canvasWidthValue = "";
+      try {
+        canvasWidthValue = getComputedStyle(document.documentElement)
+          .getPropertyValue("--canvas-width")
+          .trim();
+      } catch {
+        // If getComputedStyle fails for any reason, we keep the default width.
+      }
+
+      if (canvasWidthValue) {
+        // Parse the value and unit - expects 'vw' units as defined in CSS
+        // Regex ensures valid decimal number format (e.g., "75vw", "75.5vw")
+        const match = canvasWidthValue.match(/^(\d+(?:\.\d+)?)(vw)$/);
+
+        if (match) {
+          const vwValue = parseFloat(match[1]);
+          // Validate the parsed value is a valid number
+          if (!isNaN(vwValue) && isFinite(vwValue) && vwValue > 0) {
+            initialCanvasWidth = window.innerWidth * (vwValue / 100);
+          }
+          // If invalid, we silently keep the default based on DEFAULT_CANVAS_WIDTH_VW.
+        }
+        // If units are unexpected or the value doesn't match, we keep the default.
+      }
+    }
     // Calculate safe Z range: not behind camera (65) and not in fog (starts at 200)
     const maxSafeZ = Math.min(150, initialCanvasWidth * 0.3); // Scale with canvas width, max 150
     const minSafeZ = -maxSafeZ; // Symmetric range in front of camera
