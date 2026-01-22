@@ -23,8 +23,6 @@ form {
   padding: 0.5em;
   border-left: 1px solid var(--white);
   border-top: 1px solid var(--white);
-  border-left: 1px solid (--white);
-  border-top: 1px solid (--white);
   text-align: center;
   position: relative;
   transition: all 0.2s ease-in-out;
@@ -75,8 +73,8 @@ form {
     padding: var(--spacing-sm);
     margin: 0em 2em 2em 2em;
     border: none;
-    border-left: 1px solid (--white);
-    border-top: 1px solid (--white);
+    border-left: 1px solid var(--white);
+    border-top: 1px solid var(--white);
     border-radius: 5000px;
     backdrop-filter: blur(5px);
     box-shadow: 2px 2px 30px rgba(0,0,0,0.2);
@@ -155,8 +153,8 @@ form {
       padding: var(--spacing-sm);
       margin: 0em 2em 2em 2em;
       border: none;
-      border-left: 1px solid (--white);
-      border-top: 1px solid (--white);
+      border-left: 1px solid var(--white);
+      border-top: 1px solid var(--white);
       border-radius: 5000px;
       backdrop-filter: blur(5px);
       box-shadow: 2px 2px 30px rgba(0,0,0,0.2);
