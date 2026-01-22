@@ -115,3 +115,36 @@
     margin-left: 0;
   }
 }
+
+/* Scrolling text on hover for truncated quality labels */
+.quality-label-scroll {
+  display: inline-block;
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.quality-label-scroll:hover {
+  overflow: visible;
+  animation: scroll-text 3s linear infinite;
+}
+
+.quality-label-scroll-container {
+  overflow: hidden;
+  max-width: 100%;
+}
+
+.quality-label-scroll-container:hover .quality-label-scroll {
+  animation: scroll-text 3s linear infinite;
+  text-overflow: clip;
+}
+
+@keyframes scroll-text {
+  0%, 10% {
+    transform: translateX(0);
+  }
+  90%, 100% {
+    transform: translateX(calc(-100% + 60px));
+  }
+}
