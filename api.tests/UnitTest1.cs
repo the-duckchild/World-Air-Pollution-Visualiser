@@ -72,11 +72,8 @@ public class AirQualityDataControllerTests
             },
         };
 
-        _mockSanitizationService.Setup(s => s.SanitizeCoordinates(testLat, testLon))
-            .Returns((testLat, testLon));
-        _mockRepository
-            .Setup(repo => repo.GetDataByLatLon(testLat, testLon))
-            .ReturnsAsync(expectedData);
+        _mockSanitizationService.Setup(s => s.SanitizeCoordinates(testLat, testLon)).Returns((testLat, testLon));
+        _mockRepository.Setup(repo => repo.GetDataByLatLon(testLat, testLon)).ReturnsAsync(expectedData);
 
         // Act
         var result = await _controller.AirQualityByLatLon(testLat, testLon);
@@ -112,11 +109,8 @@ public class AirQualityDataControllerTests
         float testLon = -74.0060f;
         var expectedData = new AirQualityDataSetDto();
 
-        _mockSanitizationService.Setup(s => s.SanitizeCoordinates(testLat, testLon))
-            .Returns((testLat, testLon));
-        _mockRepository
-            .Setup(repo => repo.GetDataByLatLon(testLat, testLon))
-            .ReturnsAsync(expectedData);
+        _mockSanitizationService.Setup(s => s.SanitizeCoordinates(testLat, testLon)).Returns((testLat, testLon));
+        _mockRepository.Setup(repo => repo.GetDataByLatLon(testLat, testLon)).ReturnsAsync(expectedData);
 
         // Act
         await _controller.AirQualityByLatLon(testLat, testLon);
