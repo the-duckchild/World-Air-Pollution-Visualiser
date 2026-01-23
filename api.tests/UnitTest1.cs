@@ -1,6 +1,7 @@
 using api.Controllers;
 using api.Models.Dto;
 using api.Repositories;
+using api.Services;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 
@@ -9,12 +10,14 @@ namespace api.tests;
 public class AirQualityDataControllerTests
 {
     private readonly Mock<IAirQualityDataRepository> _mockRepository;
+    private readonly Mock<IInputSanitizationService> _mockSanitizationService;
     private readonly AirQualityDataController _controller;
 
     public AirQualityDataControllerTests()
     {
         _mockRepository = new Mock<IAirQualityDataRepository>();
-        _controller = new AirQualityDataController(_mockRepository.Object);
+        _mockSanitizationService = new Mock<IInputSanitizationService>();
+        _controller = new AirQualityDataController(_mockRepository.Object, _mockSanitizationService.Object);
     }
 
     [Fact]
@@ -37,6 +40,7 @@ public class AirQualityDataControllerTests
             },
         };
 
+        _mockSanitizationService.Setup(s => s.SanitizeString(testUID, 100)).Returns(testUID);
         _mockRepository.Setup(repo => repo.GetDataByUID(testUID)).ReturnsAsync(expectedData);
 
         // Act
@@ -68,6 +72,8 @@ public class AirQualityDataControllerTests
             },
         };
 
+        _mockSanitizationService.Setup(s => s.SanitizeCoordinates(testLat, testLon))
+            .Returns((testLat, testLon));
         _mockRepository
             .Setup(repo => repo.GetDataByLatLon(testLat, testLon))
             .ReturnsAsync(expectedData);
@@ -88,6 +94,7 @@ public class AirQualityDataControllerTests
         string testUID = "456";
         var expectedData = new AirQualityDataSetDto();
 
+        _mockSanitizationService.Setup(s => s.SanitizeString(testUID, 100)).Returns(testUID);
         _mockRepository.Setup(repo => repo.GetDataByUID(testUID)).ReturnsAsync(expectedData);
 
         // Act
@@ -105,6 +112,8 @@ public class AirQualityDataControllerTests
         float testLon = -74.0060f;
         var expectedData = new AirQualityDataSetDto();
 
+        _mockSanitizationService.Setup(s => s.SanitizeCoordinates(testLat, testLon))
+            .Returns((testLat, testLon));
         _mockRepository
             .Setup(repo => repo.GetDataByLatLon(testLat, testLon))
             .ReturnsAsync(expectedData);
