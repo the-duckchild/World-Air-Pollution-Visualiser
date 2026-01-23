@@ -17,17 +17,17 @@ public class AirQualityDataControllerTests
     {
         _mockRepository = new Mock<IAirQualityDataRepository>();
         _mockSanitizationService = new Mock<IInputSanitizationService>();
-        
+
         // Setup sanitization service to pass through coordinates unchanged by default
         _mockSanitizationService
             .Setup(s => s.SanitizeCoordinates(It.IsAny<float>(), It.IsAny<float>()))
             .Returns((float lat, float lon) => (lat, lon));
-        
+
         // Setup sanitization service to pass through strings unchanged by default
         _mockSanitizationService
             .Setup(s => s.SanitizeString(It.IsAny<string>(), It.IsAny<int>()))
             .Returns((string input, int maxLength) => input);
-        
+
         _controller = new AirQualityDataController(_mockRepository.Object, _mockSanitizationService.Object);
     }
 
