@@ -38,11 +38,11 @@ namespace api.Services
             lat = Math.Clamp(lat, -90f, 90f);
             lon = NormalizeLongitude(lon);
 
-            // Step 3: Normalize precision to reasonable level (6 decimal places ≈ 0.1m accuracy)
+            // Step 3: Normalize precision to reasonable level (5 decimal places ≈ 1m accuracy)
             lat = NormalizePrecision(lat);
             lon = NormalizePrecision(lon);
 
-            // Step 4: Log if values were significantly modified (more than 1 degree change)
+            // Step 4: Log if values were significantly modified (more than 0.01 degree change)
             if (Math.Abs(originalLat - lat) > 0.01f || Math.Abs(originalLon - lon) > 0.01f)
             {
                 _logger.LogInformation(
@@ -116,9 +116,9 @@ namespace api.Services
 
         private static float NormalizePrecision(float value)
         {
-            // Round to 6 decimal places (approximately 0.1 meter accuracy at equator)
+            // Round to 5 decimal places (approximately 1.1 meter accuracy at equator)
             // This is sufficient for location-based queries while avoiding floating-point noise
-            return (float)Math.Round(value, 6);
+            return (float)Math.Round(value, 5);
         }
 
         private static float NormalizeLongitude(float lon)
