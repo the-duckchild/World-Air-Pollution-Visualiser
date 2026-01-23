@@ -1,8 +1,8 @@
+using System.Text.RegularExpressions;
 using api.Models.Dto;
 using api.Repositories;
 using api.Services;
 using Microsoft.AspNetCore.Mvc;
-using System.Text.RegularExpressions;
 
 namespace api.Controllers;
 
@@ -17,7 +17,8 @@ public partial class AirQualityDataController : ControllerBase
 
     public AirQualityDataController(
         IAirQualityDataRepository airQualityDataRepository,
-        IInputSanitizationService sanitizationService)
+        IInputSanitizationService sanitizationService
+    )
     {
         _airQualityDataRepository = airQualityDataRepository;
         _sanitizationService = sanitizationService;
@@ -54,7 +55,10 @@ public partial class AirQualityDataController : ControllerBase
             // Sanitize and validate coordinates
             var (sanitizedLat, sanitizedLon) = _sanitizationService.SanitizeCoordinates(lat, lon);
 
-            var result = await _airQualityDataRepository.GetDataByLatLon(sanitizedLat, sanitizedLon);
+            var result = await _airQualityDataRepository.GetDataByLatLon(
+                sanitizedLat,
+                sanitizedLon
+            );
 
             return Ok(result);
         }
