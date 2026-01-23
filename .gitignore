@@ -27,4 +27,10 @@ dist-ssr
 
 .env
 
+# .NET build artifacts
+bin/
+obj/
+*.dll
+*.pdb
+*.cache
 
