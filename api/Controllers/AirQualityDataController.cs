@@ -2,14 +2,18 @@ using api.Models.Dto;
 using api.Repositories;
 using api.Services;
 using Microsoft.AspNetCore.Mvc;
+using System.Text.RegularExpressions;
 
 namespace api.Controllers;
 
 [ApiController]
-public class AirQualityDataController : ControllerBase
+public partial class AirQualityDataController : ControllerBase
 {
     private readonly IAirQualityDataRepository _airQualityDataRepository;
     private readonly IInputSanitizationService _sanitizationService;
+
+    [GeneratedRegex(@"^[a-zA-Z0-9\-_]+$")]
+    private static partial Regex ValidUidPattern();
 
     public AirQualityDataController(
         IAirQualityDataRepository airQualityDataRepository,
@@ -32,8 +36,7 @@ public class AirQualityDataController : ControllerBase
         var sanitizedUid = _sanitizationService.SanitizeString(uid, maxLength: 100);
         
         // Validate UID format after sanitization
-        var validUidPattern = new System.Text.RegularExpressions.Regex(@"^[a-zA-Z0-9\-_]+$");
-        if (string.IsNullOrEmpty(sanitizedUid) || !validUidPattern.IsMatch(sanitizedUid))
+        if (string.IsNullOrEmpty(sanitizedUid) || !ValidUidPattern().IsMatch(sanitizedUid))
         {
             return BadRequest("Invalid UID format");
         }
@@ -91,8 +94,7 @@ public class AirQualityDataController : ControllerBase
         }
 
         // Validate UID format - alphanumeric and common separators only
-        var validUidPattern = new System.Text.RegularExpressions.Regex(@"^[a-zA-Z0-9\-_]+$");
-        var invalidUids = sanitizedUids.Where(uid => !validUidPattern.IsMatch(uid)).ToList();
+        var invalidUids = sanitizedUids.Where(uid => !ValidUidPattern().IsMatch(uid)).ToList();
 
         if (invalidUids.Any())
         {
