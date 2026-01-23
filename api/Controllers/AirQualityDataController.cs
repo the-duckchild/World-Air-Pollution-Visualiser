@@ -46,6 +46,17 @@ public class AirQualityDataController : ControllerBase
     [HttpGet("air-quality-data-by-latlon/{lat}/{lon}")]
     public async Task<ActionResult<AirQualityDataSetDto>> AirQualityByLatLon(float lat, float lon)
     {
+        // Validate latitude and longitude ranges
+        if (lat < -90 || lat > 90)
+        {
+            return BadRequest("Latitude must be between -90 and 90");
+        }
+
+        if (lon < -180 || lon > 180)
+        {
+            return BadRequest("Longitude must be between -180 and 180");
+        }
+
         try
         {
             // Sanitize and validate coordinates

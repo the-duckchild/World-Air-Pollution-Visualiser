@@ -1,6 +1,7 @@
 using api.Controllers;
 using api.Models.Dto;
 using api.Repositories;
+using api.Services;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 
@@ -9,12 +10,14 @@ namespace api.tests;
 public class AirQualityDataControllerTests
 {
     private readonly Mock<IAirQualityDataRepository> _mockRepository;
+    private readonly Mock<IInputSanitizationService> _mockSanitizationService;
     private readonly AirQualityDataController _controller;
 
     public AirQualityDataControllerTests()
     {
         _mockRepository = new Mock<IAirQualityDataRepository>();
-        _controller = new AirQualityDataController(_mockRepository.Object);
+        _mockSanitizationService = new Mock<IInputSanitizationService>();
+        _controller = new AirQualityDataController(_mockRepository.Object, _mockSanitizationService.Object);
     }
 
     [Fact]
@@ -37,6 +40,7 @@ public class AirQualityDataControllerTests
             },
         };
 
+        _mockSanitizationService.Setup(s => s.SanitizeString(testUID, 100)).Returns(testUID);
         _mockRepository.Setup(repo => repo.GetDataByUID(testUID)).ReturnsAsync(expectedData);
 
         // Act
@@ -68,6 +72,7 @@ public class AirQualityDataControllerTests
             },
         };
 
+        _mockSanitizationService.Setup(s => s.SanitizeCoordinates(testLat, testLon)).Returns((testLat, testLon));
         _mockRepository
             .Setup(repo => repo.GetDataByLatLon(testLat, testLon))
             .ReturnsAsync(expectedData);
@@ -88,6 +93,7 @@ public class AirQualityDataControllerTests
         string testUID = "456";
         var expectedData = new AirQualityDataSetDto();
 
+        _mockSanitizationService.Setup(s => s.SanitizeString(testUID, 100)).Returns(testUID);
         _mockRepository.Setup(repo => repo.GetDataByUID(testUID)).ReturnsAsync(expectedData);
 
         // Act
@@ -105,6 +111,7 @@ public class AirQualityDataControllerTests
         float testLon = -74.0060f;
         var expectedData = new AirQualityDataSetDto();
 
+        _mockSanitizationService.Setup(s => s.SanitizeCoordinates(testLat, testLon)).Returns((testLat, testLon));
         _mockRepository
             .Setup(repo => repo.GetDataByLatLon(testLat, testLon))
             .ReturnsAsync(expectedData);
@@ -114,5 +121,65 @@ public class AirQualityDataControllerTests
 
         // Assert
         _mockRepository.Verify(repo => repo.GetDataByLatLon(testLat, testLon), Times.Once);
+    }
+
+    [Fact]
+    public async Task AirQualityByLatLon_ReturnsBadRequest_WhenLatitudeTooHigh()
+    {
+        // Arrange
+        float testLat = 100f;
+        float testLon = 0f;
+
+        // Act
+        var result = await _controller.AirQualityByLatLon(testLat, testLon);
+
+        // Assert
+        var badRequestResult = Assert.IsType<BadRequestObjectResult>(result.Result);
+        Assert.Equal("Latitude must be between -90 and 90", badRequestResult.Value);
+    }
+
+    [Fact]
+    public async Task AirQualityByLatLon_ReturnsBadRequest_WhenLatitudeTooLow()
+    {
+        // Arrange
+        float testLat = -100f;
+        float testLon = 0f;
+
+        // Act
+        var result = await _controller.AirQualityByLatLon(testLat, testLon);
+
+        // Assert
+        var badRequestResult = Assert.IsType<BadRequestObjectResult>(result.Result);
+        Assert.Equal("Latitude must be between -90 and 90", badRequestResult.Value);
+    }
+
+    [Fact]
+    public async Task AirQualityByLatLon_ReturnsBadRequest_WhenLongitudeTooHigh()
+    {
+        // Arrange
+        float testLat = 0f;
+        float testLon = 200f;
+
+        // Act
+        var result = await _controller.AirQualityByLatLon(testLat, testLon);
+
+        // Assert
+        var badRequestResult = Assert.IsType<BadRequestObjectResult>(result.Result);
+        Assert.Equal("Longitude must be between -180 and 180", badRequestResult.Value);
+    }
+
+    [Fact]
+    public async Task AirQualityByLatLon_ReturnsBadRequest_WhenLongitudeTooLow()
+    {
+        // Arrange
+        float testLat = 0f;
+        float testLon = -200f;
+
+        // Act
+        var result = await _controller.AirQualityByLatLon(testLat, testLon);
+
+        // Assert
+        var badRequestResult = Assert.IsType<BadRequestObjectResult>(result.Result);
+        Assert.Equal("Longitude must be between -180 and 180", badRequestResult.Value);
     }
 }
