@@ -18,7 +18,7 @@ public class AirQualityDataRepository : IAirQualityDataRepository
 
     public async Task<AirQualityDataSetDto> GetDataByUID(string uid)
     {
-        var apiKey = Environment.GetEnvironmentVariable("AIR_POLLUTION_API_KEY") 
+        var apiKey = Environment.GetEnvironmentVariable("AIR_POLLUTION_API_KEY")
             ?? throw new InvalidOperationException("AIR_POLLUTION_API_KEY environment variable is not set");
         var client = new RestClient();
         var request = new RestRequest(
@@ -49,7 +49,7 @@ public class AirQualityDataRepository : IAirQualityDataRepository
 
     public async Task<AirQualityDataSetDto> GetDataByLatLon(float lat, float lon)
     {
-        var apiKey = Environment.GetEnvironmentVariable("AIR_POLLUTION_API_KEY") 
+        var apiKey = Environment.GetEnvironmentVariable("AIR_POLLUTION_API_KEY")
             ?? throw new InvalidOperationException("AIR_POLLUTION_API_KEY environment variable is not set");
         var client = new RestClient();
         var request = new RestRequest(

@@ -34,7 +34,7 @@ public partial class AirQualityDataController : ControllerBase
 
         // Sanitize the UID input
         var sanitizedUid = _sanitizationService.SanitizeString(uid, maxLength: 100);
-        
+
         // Validate UID format after sanitization
         if (string.IsNullOrEmpty(sanitizedUid) || !ValidUidPattern().IsMatch(sanitizedUid))
         {
@@ -53,7 +53,7 @@ public partial class AirQualityDataController : ControllerBase
         {
             // Sanitize and validate coordinates
             var (sanitizedLat, sanitizedLon) = _sanitizationService.SanitizeCoordinates(lat, lon);
-            
+
             var result = await _airQualityDataRepository.GetDataByLatLon(sanitizedLat, sanitizedLon);
 
             return Ok(result);
