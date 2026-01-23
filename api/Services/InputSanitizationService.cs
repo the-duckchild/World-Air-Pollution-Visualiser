@@ -43,7 +43,7 @@ namespace api.Services
             lon = NormalizePrecision(lon);
 
             // Step 4: Log if values were significantly modified (more than 1 degree change)
-            if (Math.Abs(originalLat - lat) > 1f || Math.Abs(originalLon - lon) > 1f)
+            if (Math.Abs(originalLat - lat) > 0.01f || Math.Abs(originalLon - lon) > 0.01f)
             {
                 _logger.LogInformation(
                     "Coordinates sanitized: ({OriginalLat},{OriginalLon}) -> ({NewLat},{NewLon})",
