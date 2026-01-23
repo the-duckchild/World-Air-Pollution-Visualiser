@@ -1,5 +1,6 @@
 using api.Middleware;
 using api.Repositories;
+using api.Services;
 using dotenv.net;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -78,6 +79,7 @@ logger.LogInformation("Registering services...");
 
 builder.Services.AddControllers();
 builder.Services.AddScoped<IAirQualityDataRepository, AirQualityDataRepository>();
+builder.Services.AddScoped<IInputSanitizationService, InputSanitizationService>();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddSwaggerGen(options =>

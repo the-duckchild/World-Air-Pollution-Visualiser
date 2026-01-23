@@ -20,39 +20,48 @@ namespace api.Services
         }
 
         /// <summary>
-        /// Comprehensive coordinate sanitization with security logging
+        /// Validates and sanitizes coordinate inputs.
+        /// Returns explicit validation errors for out-of-range coordinates rather than silently clamping.
+        /// Normalizes precision and handles edge cases like NaN/Infinity.
         /// </summary>
         public (float Latitude, float Longitude) SanitizeCoordinates(float lat, float lon)
         {
             var originalLat = lat;
             var originalLon = lon;
 
-            // Step 1: Validate float integrity
+            // Step 1: Validate float integrity (reject NaN, Infinity)
             if (!IsValidFloat(lat) || !IsValidFloat(lon))
             {
                 _logger.LogWarning("Invalid float values detected: lat={Lat}, lon={Lon}", lat, lon);
                 throw new ArgumentException("Invalid coordinate values detected.");
             }
 
-            // Step 2: Check for suspicious precision (potential coordinated attack)
-            if (HasSuspiciousPrecision(lat) || HasSuspiciousPrecision(lon))
+            // Step 2: Validate geographic ranges - return explicit errors, don't silently clamp
+            if (lat < -90f || lat > 90f)
             {
-                _logger.LogWarning("Suspicious precision detected: lat={Lat}, lon={Lon}", lat, lon);
+                _logger.LogWarning("Latitude out of range: {Lat}", lat);
+                throw new ArgumentException("Latitude must be between -90 and 90.");
             }
 
-            // Step 3: Normalize precision to reasonable level
+            if (lon < -180f || lon > 180f)
+            {
+                _logger.LogWarning("Longitude out of range: {Lon}", lon);
+                throw new ArgumentException("Longitude must be between -180 and 180.");
+            }
+
+            // Step 3: Normalize precision to reasonable level (5 decimal places ≈ 1m accuracy)
             lat = NormalizePrecision(lat);
             lon = NormalizePrecision(lon);
 
-            // Step 4: Clamp to valid geographic ranges
-            lat = Math.Clamp(lat, -90f, 90f);
-            lon = NormalizeLongitude(lon);
+            // Step 4: Handle edge case where 180° should be normalized to -180°
+            if (Math.Abs(lon - 180f) < 0.00001f)
+                lon = -180f;
 
-            // Step 5: Log if values were significantly modified
-            if (Math.Abs(originalLat - lat) > 0.01f || Math.Abs(originalLon - lon) > 0.01f)
+            // Step 5: Log if precision normalization changed values significantly
+            if (Math.Abs(originalLat - lat) > 0.00001f || Math.Abs(originalLon - lon) > 0.00001f)
             {
-                _logger.LogInformation(
-                    "Coordinates sanitized: ({OriginalLat},{OriginalLon}) -> ({NewLat},{NewLon})",
+                _logger.LogDebug(
+                    "Coordinates precision normalized: ({OriginalLat},{OriginalLon}) -> ({NewLat},{NewLon})",
                     originalLat,
                     originalLon,
                     lat,
@@ -120,35 +129,11 @@ namespace api.Services
                 && !float.IsPositiveInfinity(value);
         }
 
-        private static bool HasSuspiciousPrecision(float value)
-        {
-            // Check if the value has more than 8 decimal places (suspicious for coordinates)
-            var str = value.ToString("F10", CultureInfo.InvariantCulture);
-            var decimalIndex = str.IndexOf('.');
-
-            if (decimalIndex == -1)
-                return false;
-
-            var decimalPlaces = str.Length - decimalIndex - 1;
-            return decimalPlaces > 8;
-        }
-
         private static float NormalizePrecision(float value)
         {
             // Round to 5 decimal places (approximately 1.1 meter accuracy at equator)
+            // This is sufficient for location-based queries while avoiding floating-point noise
             return (float)Math.Round(value, 5);
-        }
-
-        private static float NormalizeLongitude(float lon)
-        {
-            // Clamp to valid range
-            lon = Math.Clamp(lon, -180f, 180f);
-
-            // Handle the edge case where 180° should be normalized to -180°
-            if (Math.Abs(lon - 180f) < 0.00001f)
-                return -180f;
-
-            return lon;
         }
 
         #endregion

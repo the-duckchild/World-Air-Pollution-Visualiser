@@ -6,12 +6,11 @@ import "./styles/app.css";
 function App() {
   return (
     <BrowserRouter>
-      {/* <Header />
-             <Navbar /> */}
+    
       <Routes>
         <Route path="/" element={<HomePage />} />
       </Routes>
-      {/* <Footer />       */}
+      
     </BrowserRouter>
   );
 }

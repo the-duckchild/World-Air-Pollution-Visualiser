@@ -1,17 +1,27 @@
+using System.Text.RegularExpressions;
 using api.Models.Dto;
 using api.Repositories;
+using api.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace api.Controllers;
 
 [ApiController]
-public class AirQualityDataController : ControllerBase
+public partial class AirQualityDataController : ControllerBase
 {
     private readonly IAirQualityDataRepository _airQualityDataRepository;
+    private readonly IInputSanitizationService _sanitizationService;
 
-    public AirQualityDataController(IAirQualityDataRepository airQualityDataRepository)
+    [GeneratedRegex(@"^[a-zA-Z0-9\-_]+$")]
+    private static partial Regex ValidUidPattern();
+
+    public AirQualityDataController(
+        IAirQualityDataRepository airQualityDataRepository,
+        IInputSanitizationService sanitizationService
+    )
     {
         _airQualityDataRepository = airQualityDataRepository;
+        _sanitizationService = sanitizationService;
     }
 
     [HttpGet("air-quality-data-by-uid/{uid}")]
@@ -23,14 +33,16 @@ public class AirQualityDataController : ControllerBase
             return BadRequest("UID cannot be null or empty");
         }
 
-        // Validate UID format and length
-        var validUidPattern = new System.Text.RegularExpressions.Regex(@"^[a-zA-Z0-9\-_]+$");
-        if (!validUidPattern.IsMatch(uid) || uid.Length > 100)
+        // Sanitize the UID input
+        var sanitizedUid = _sanitizationService.SanitizeString(uid, maxLength: 100);
+
+        // Validate UID format after sanitization
+        if (string.IsNullOrEmpty(sanitizedUid) || !ValidUidPattern().IsMatch(sanitizedUid))
         {
             return BadRequest("Invalid UID format");
         }
 
-        var result = await _airQualityDataRepository.GetDataByUID(uid);
+        var result = await _airQualityDataRepository.GetDataByUID(sanitizedUid);
 
         return Ok(result);
     }
@@ -38,20 +50,22 @@ public class AirQualityDataController : ControllerBase
     [HttpGet("air-quality-data-by-latlon/{lat}/{lon}")]
     public async Task<ActionResult<AirQualityDataSetDto>> AirQualityByLatLon(float lat, float lon)
     {
-        // Validate latitude and longitude ranges
-        if (lat < -90 || lat > 90)
+        try
         {
-            return BadRequest("Latitude must be between -90 and 90");
-        }
+            // Sanitize and validate coordinates
+            var (sanitizedLat, sanitizedLon) = _sanitizationService.SanitizeCoordinates(lat, lon);
 
-        if (lon < -180 || lon > 180)
+            var result = await _airQualityDataRepository.GetDataByLatLon(
+                sanitizedLat,
+                sanitizedLon
+            );
+
+            return Ok(result);
+        }
+        catch (ArgumentException ex)
         {
-            return BadRequest("Longitude must be between -180 and 180");
+            return BadRequest(ex.Message);
         }
-
-        var result = await _airQualityDataRepository.GetDataByLatLon(lat, lon);
-
-        return Ok(result);
     }
 
     [HttpPost("air-quality-data-by-uids")]
@@ -84,8 +98,7 @@ public class AirQualityDataController : ControllerBase
         }
 
         // Validate UID format - alphanumeric and common separators only
-        var validUidPattern = new System.Text.RegularExpressions.Regex(@"^[a-zA-Z0-9\-_]+$");
-        var invalidUids = sanitizedUids.Where(uid => !validUidPattern.IsMatch(uid)).ToList();
+        var invalidUids = sanitizedUids.Where(uid => !ValidUidPattern().IsMatch(uid)).ToList();
 
         if (invalidUids.Any())
         {
