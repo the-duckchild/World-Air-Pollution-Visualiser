@@ -1,6 +1,7 @@
 using api.Controllers;
 using api.Models.Dto;
 using api.Repositories;
+using api.Services;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 
@@ -9,12 +10,25 @@ namespace api.tests;
 public class AirQualityDataControllerTests
 {
     private readonly Mock<IAirQualityDataRepository> _mockRepository;
+    private readonly Mock<IInputSanitizationService> _mockSanitizationService;
     private readonly AirQualityDataController _controller;
 
     public AirQualityDataControllerTests()
     {
         _mockRepository = new Mock<IAirQualityDataRepository>();
-        _controller = new AirQualityDataController(_mockRepository.Object);
+        _mockSanitizationService = new Mock<IInputSanitizationService>();
+        
+        // Setup sanitization service to pass through coordinates unchanged by default
+        _mockSanitizationService
+            .Setup(s => s.SanitizeCoordinates(It.IsAny<float>(), It.IsAny<float>()))
+            .Returns((float lat, float lon) => (lat, lon));
+        
+        // Setup sanitization service to pass through strings unchanged by default
+        _mockSanitizationService
+            .Setup(s => s.SanitizeString(It.IsAny<string>(), It.IsAny<int>()))
+            .Returns((string input, int maxLength) => input);
+        
+        _controller = new AirQualityDataController(_mockRepository.Object, _mockSanitizationService.Object);
     }
 
     [Fact]

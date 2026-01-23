@@ -1,20 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "/home/runner/work/World-Air-Quality-Visualiser/World-Air-Quality-Visualiser/api.tests/api.tests.csproj": {}
+    "C:\\Code\\Air Pollution Visualiser\\api.tests\\api.tests.csproj": {}
   },
   "projects": {
-    "/home/runner/work/World-Air-Quality-Visualiser/World-Air-Quality-Visualiser/api.tests/api.tests.csproj": {
+    "C:\\Code\\Air Pollution Visualiser\\api.tests\\api.tests.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/home/runner/work/World-Air-Quality-Visualiser/World-Air-Quality-Visualiser/api.tests/api.tests.csproj",
+        "projectUniqueName": "C:\\Code\\Air Pollution Visualiser\\api.tests\\api.tests.csproj",
         "projectName": "api.tests",
-        "projectPath": "/home/runner/work/World-Air-Quality-Visualiser/World-Air-Quality-Visualiser/api.tests/api.tests.csproj",
-        "packagesPath": "/home/runner/work/World-Air-Quality-Visualiser/.codeql-scratch/dbs/csharp/working/packages",
-        "outputPath": "/home/runner/work/World-Air-Quality-Visualiser/World-Air-Quality-Visualiser/api.tests/obj/",
+        "projectPath": "C:\\Code\\Air Pollution Visualiser\\api.tests\\api.tests.csproj",
+        "packagesPath": "C:\\Users\\enovo\\.nuget\\packages\\",
+        "outputPath": "C:\\Code\\Air Pollution Visualiser\\api.tests\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "/home/runner/.nuget/NuGet/NuGet.Config"
+          "C:\\Users\\enovo\\AppData\\Roaming\\NuGet\\NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net8.0"
@@ -26,8 +26,8 @@
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
-              "/home/runner/work/World-Air-Quality-Visualiser/World-Air-Quality-Visualiser/api/api.csproj": {
-                "projectPath": "/home/runner/work/World-Air-Quality-Visualiser/World-Air-Quality-Visualiser/api/api.csproj"
+              "C:\\Code\\Air Pollution Visualiser\\api\\api.csproj": {
+                "projectPath": "C:\\Code\\Air Pollution Visualiser\\api\\api.csproj"
               }
             }
           }
@@ -41,8 +41,7 @@
           "enableAudit": "true",
           "auditLevel": "low",
           "auditMode": "direct"
-        },
-        "SdkAnalysisLevel": "10.0.100"
+        }
       },
       "frameworks": {
         "net8.0": {
@@ -84,36 +83,26 @@
           ],
           "assetTargetFallback": true,
           "warn": true,
-          "downloadDependencies": [
-            {
-              "name": "Microsoft.AspNetCore.App.Ref",
-              "version": "[8.0.23, 8.0.23]"
-            },
-            {
-              "name": "Microsoft.NETCore.App.Ref",
-              "version": "[8.0.23, 8.0.23]"
-            }
-          ],
           "frameworkReferences": {
             "Microsoft.NETCore.App": {
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "/usr/share/dotnet/sdk/10.0.102/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.410/PortableRuntimeIdentifierGraph.json"
         }
       }
     },
-    "/home/runner/work/World-Air-Quality-Visualiser/World-Air-Quality-Visualiser/api/api.csproj": {
+    "C:\\Code\\Air Pollution Visualiser\\api\\api.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/home/runner/work/World-Air-Quality-Visualiser/World-Air-Quality-Visualiser/api/api.csproj",
+        "projectUniqueName": "C:\\Code\\Air Pollution Visualiser\\api\\api.csproj",
         "projectName": "api",
-        "projectPath": "/home/runner/work/World-Air-Quality-Visualiser/World-Air-Quality-Visualiser/api/api.csproj",
-        "packagesPath": "/home/runner/work/World-Air-Quality-Visualiser/.codeql-scratch/dbs/csharp/working/packages",
-        "outputPath": "/home/runner/work/World-Air-Quality-Visualiser/World-Air-Quality-Visualiser/api/obj/",
+        "projectPath": "C:\\Code\\Air Pollution Visualiser\\api\\api.csproj",
+        "packagesPath": "C:\\Users\\enovo\\.nuget\\packages\\",
+        "outputPath": "C:\\Code\\Air Pollution Visualiser\\api\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "/home/runner/.nuget/NuGet/NuGet.Config"
+          "C:\\Users\\enovo\\AppData\\Roaming\\NuGet\\NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net8.0"
@@ -136,8 +125,7 @@
           "enableAudit": "true",
           "auditLevel": "low",
           "auditMode": "direct"
-        },
-        "SdkAnalysisLevel": "10.0.100"
+        }
       },
       "frameworks": {
         "net8.0": {
@@ -175,20 +163,6 @@
           ],
           "assetTargetFallback": true,
           "warn": true,
-          "downloadDependencies": [
-            {
-              "name": "Microsoft.AspNetCore.App.Ref",
-              "version": "[8.0.23, 8.0.23]"
-            },
-            {
-              "name": "Microsoft.NETCore.App.Host.linux-x64",
-              "version": "[8.0.23, 8.0.23]"
-            },
-            {
-              "name": "Microsoft.NETCore.App.Ref",
-              "version": "[8.0.23, 8.0.23]"
-            }
-          ],
           "frameworkReferences": {
             "Microsoft.AspNetCore.App": {
               "privateAssets": "none"
@@ -197,7 +171,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "/usr/share/dotnet/sdk/10.0.102/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.410/PortableRuntimeIdentifierGraph.json"
         }
       }
     }
